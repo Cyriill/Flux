@@ -1,4 +1,4 @@
-package com.mskd.flux.ui.component
+package com.mskd.flux.ui.component.media
 
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.MaterialTheme
@@ -12,11 +12,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.palette.graphics.Palette
 import coil3.toBitmap
+import com.mskd.flux.ui.component.global.FluxImage
 
 @Composable
 fun MediaItem(
     modifier: Modifier,
-    url: String,
+    path: String,
+    hd: Boolean,
     shape: Shape = MaterialTheme.shapes.small,
     onTap: (Int?) -> Unit,
     description: String
@@ -24,12 +26,13 @@ fun MediaItem(
 
     var seedRgb by remember { mutableStateOf<Int?>(null) }
 
-    Image(
+    FluxImage(
         modifier = Modifier
             .clip(shape)
             .then(modifier)
             .clickable { onTap(seedRgb) },
-        url = url,
+        path = path,
+        hd = hd,
         contentDescription = description,
         onSuccess = { state ->
             val bitmap = state.result.image.toBitmap()

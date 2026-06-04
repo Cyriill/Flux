@@ -47,13 +47,14 @@ import com.mskd.flux.R
 import com.mskd.flux.mockups.MediaMockups
 import com.mskd.flux.model.artwork.ContentType
 import com.mskd.flux.navigation.Route
-import com.mskd.flux.ui.component.FluxScaffold
-import com.mskd.flux.ui.component.MediaItem
-import com.mskd.flux.ui.component.Text
+import com.mskd.flux.navigation.Route.Artwork
+import com.mskd.flux.navigation.Route.Show
+import com.mskd.flux.ui.component.global.FluxScaffold
+import com.mskd.flux.ui.component.global.Text
+import com.mskd.flux.ui.component.media.MediaItem
 import com.mskd.flux.ui.theme.AppTheme
 import com.mskd.flux.ui.theme.Ui
 import com.mskd.flux.utils.FluxPreview
-import com.mskd.flux.utils.extensions.tmdbImage
 
 @Composable
 fun SearchScreen(
@@ -70,8 +71,9 @@ fun SearchScreen(
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
             when (event) {
-                is SearchEvent.NavigateToMedia -> navigate(Route.Artwork(artworkId = event.artworkId, rgb = event.rgb))
                 SearchEvent.BackToPreviousScreen -> onBack()
+                is SearchEvent.NavigateToMovie -> navigate(Artwork(artworkId = event.artworkId, rgb = event.rgb))
+                is SearchEvent.NavigateToShow -> navigate(Show(artworkId = event.artworkId, rgb = event.rgb))
             }
         }
     }
@@ -172,9 +174,10 @@ fun SearchContent(
                         modifier = Modifier
                             .width(maxWidth)
                             .aspectRatio(2f/3f),
-                        url = artwork.imagePath.tmdbImage,
+                        path = artwork.imagePath,
+                        hd = false,
                         description = artwork.title,
-                        onTap = { sendIntent(SearchIntent.OnArtworkTap(artworkId = artwork.id, rgb = it)) }
+                        onTap = { sendIntent(SearchIntent.OnArtworkTap(artwork = artwork, rgb = it)) }
                     )
 
                 }

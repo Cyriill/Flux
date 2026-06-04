@@ -15,17 +15,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import com.mskd.flux.screens.settings.SettingIcon
-import com.mskd.flux.ui.component.Text
+import com.mskd.flux.ui.component.global.Text
 import com.mskd.flux.ui.theme.Ui
 import com.mskd.flux.utils.extensions.uppercaseFirstLetter
 
 @Composable
 fun SettingsItem(
     text: String,
-    value: String,
-    painter: Painter,
-    iconBackgroundColor: Color,
-    iconColor: Color,
+    subText: String? = null,
+    painter: Painter? = null,
+    iconColor: Color = MaterialTheme.colorScheme.onTertiaryContainer,
+    iconBackgroundColor: Color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 1f),
     valueColor: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = .8f),
     onTap: () -> Unit
 ) {
@@ -40,12 +40,14 @@ fun SettingsItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        SettingIcon(
-            painter = painter,
-            backgroundColor = iconBackgroundColor,
-            iconColor = iconColor,
-            contentDescription = text
-        )
+        painter?.let {
+            SettingIcon(
+                painter = it,
+                backgroundColor = iconBackgroundColor,
+                iconColor = iconColor,
+                contentDescription = text
+            )
+        }
 
         Column(
             modifier = Modifier.weight(1f),
@@ -58,7 +60,7 @@ fun SettingsItem(
             )
 
             AnimatedContent(
-                targetState = value.uppercaseFirstLetter()
+                targetState = subText.uppercaseFirstLetter()
             ) { text ->
                 Text.Title.Small(
                     text = text,

@@ -1,13 +1,14 @@
 package com.mskd.flux.screens.customization
 
 import android.app.Application
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mskd.flux.R
 import com.mskd.flux.data.repository.customization.CustomizationRepository
 import com.mskd.flux.screens.customization.composables.ColorItem
-import com.mskd.flux.ui.component.FluxOptionsDialogItem
-import com.mskd.flux.ui.component.FluxOptionsDialogState
+import com.mskd.flux.ui.component.global.FluxOptionsDialogItem
+import com.mskd.flux.ui.component.global.FluxOptionsDialogState
 import com.mskd.flux.ui.theme.Ui
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -41,6 +42,7 @@ class CustomizationViewModel @Inject constructor(
             uiTheme = customization.uiTheme,
             color = customization.color,
             waveProgress = customization.waveProgress,
+            largeEpisodeImage = customization.largeEpisodeImage,
             dialogState = dialog
         )
     }.stateIn(
@@ -72,6 +74,7 @@ class CustomizationViewModel @Inject constructor(
             is CustomizationIntent.SetColorValue -> setColor(color = intent.color)
             is CustomizationIntent.SetThemeValue -> setTheme(theme = intent.theme)
             is CustomizationIntent.OnWaveProgressCheck -> setWaveProgress(waveProgress = intent.checked)
+            is CustomizationIntent.OnLargeEpisodeImageCheck -> setLargeEpisodeImage(large = intent.checked)
 
         }
     }
@@ -111,13 +114,13 @@ class CustomizationViewModel @Inject constructor(
             titleResId = R.string.app_theme,
             currentValue = currentValue,
             options = listOf(
-                Ui.Colors.System.let { FluxOptionsDialogItem(value = it.argb, label = context.getString(it.stringResId), left = { ColorItem(it.argb) } ) },
-                Ui.Colors.Red.let { FluxOptionsDialogItem(value = it.argb, label = context.getString(it.stringResId), left = { ColorItem(it.argb) } ) },
-                Ui.Colors.Blue.let { FluxOptionsDialogItem(value = it.argb, label = context.getString(it.stringResId), left = { ColorItem(it.argb) } ) },
-                Ui.Colors.Green.let { FluxOptionsDialogItem(value = it.argb, label = context.getString(it.stringResId), left = { ColorItem(it.argb) } ) },
-                Ui.Colors.Yellow.let { FluxOptionsDialogItem(value = it.argb, label = context.getString(it.stringResId), left = { ColorItem(it.argb) } ) },
-                Ui.Colors.Magenta.let { FluxOptionsDialogItem(value = it.argb, label = context.getString(it.stringResId), left = { ColorItem(it.argb) } ) },
-                Ui.Colors.Gray.let { FluxOptionsDialogItem(value = it.argb, label = context.getString(it.stringResId), left = { ColorItem(it.argb) } ) },
+                Ui.AccentColors.System.let { FluxOptionsDialogItem(value = it.color?.toArgb(), label = context.getString(it.stringResId), left = { ColorItem(it.color) } ) },
+                Ui.AccentColors.Red.let { FluxOptionsDialogItem(value = it.color?.toArgb(), label = context.getString(it.stringResId), left = { ColorItem(it.color) } ) },
+                Ui.AccentColors.Blue.let { FluxOptionsDialogItem(value = it.color?.toArgb(), label = context.getString(it.stringResId), left = { ColorItem(it.color) } ) },
+                Ui.AccentColors.Green.let { FluxOptionsDialogItem(value = it.color?.toArgb(), label = context.getString(it.stringResId), left = { ColorItem(it.color) } ) },
+                Ui.AccentColors.Yellow.let { FluxOptionsDialogItem(value = it.color?.toArgb(), label = context.getString(it.stringResId), left = { ColorItem(it.color) } ) },
+                Ui.AccentColors.Magenta.let { FluxOptionsDialogItem(value = it.color?.toArgb(), label = context.getString(it.stringResId), left = { ColorItem(it.color) } ) },
+                Ui.AccentColors.Gray.let { FluxOptionsDialogItem(value = it.color?.toArgb(), label = context.getString(it.stringResId), left = { ColorItem(it.color) } ) },
             ),
             applyValue = { value -> CustomizationIntent.SetColorValue(value) }
         )
@@ -132,6 +135,10 @@ class CustomizationViewModel @Inject constructor(
 
     private suspend fun setWaveProgress(waveProgress: Boolean) {
         customizationRepository.setWaveProgress(waveProgress)
+    }
+
+    private suspend fun setLargeEpisodeImage(large: Boolean) {
+        customizationRepository.setLargeEpisodeImage(large)
     }
 
     //endregion

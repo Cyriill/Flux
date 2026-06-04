@@ -133,4 +133,15 @@
     <string name="color_magenta">Magenta</string>
     <string name="color_gray">Gris</string>
     <string name="wave_progress">Barre de progression en vague</string>
+    <string name="accent_color_desc">Couleur globale de l\'interfac</string>
+    <string name="large_artwork_poster">Grande image sur la page des films/séries</string>
+    <string name="seasons">Saisons</string>
+    <plurals name="episodes">
+        <item quantity="one">%d épisode</item>
+        <item quantity="many">%d épisodes</item>
+        <item quantity="other">%d épisodes</item>
+    </plurals>
+    <string name="read_more">Lire plus</string>
+    <string name="read_less">Lire moins</string>
+    <string name="large_episode_image">Grande image pour les épisodes</string>
 </resources>

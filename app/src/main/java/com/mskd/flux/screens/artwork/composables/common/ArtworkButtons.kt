@@ -28,9 +28,9 @@ import com.mskd.flux.mockups.MediaMockups
 import com.mskd.flux.model.artwork.Media
 import com.mskd.flux.model.artwork.Status
 import com.mskd.flux.screens.artwork.ArtworkIntent
-import com.mskd.flux.ui.component.FluxTextButton
-import com.mskd.flux.ui.component.ProgressBar
-import com.mskd.flux.ui.component.Text
+import com.mskd.flux.ui.component.global.FluxTextButton
+import com.mskd.flux.ui.component.global.ProgressStatusBar
+import com.mskd.flux.ui.component.global.Text
 import com.mskd.flux.ui.theme.AppTheme
 import com.mskd.flux.ui.theme.Ui
 import com.mskd.flux.utils.FluxPreview
@@ -40,6 +40,7 @@ import com.mskd.flux.utils.extensions.timeDescription
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ArtworkButtons(
+    modifier: Modifier = Modifier,
     media: Media,
     sendIntent: (ArtworkIntent) -> Unit
 ) {
@@ -53,7 +54,7 @@ fun ArtworkButtons(
     }
 
     Column(
-        modifier = Modifier.width(250.dp),
+        modifier = modifier.width(250.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
@@ -129,9 +130,10 @@ fun MediaStatusProgression(
             verticalAlignment = Alignment.CenterVertically
         ){
 
-            ProgressBar(
+            ProgressStatusBar(
                 modifier = Modifier.weight(1f),
-                media = media
+                isVisible = true,
+                progress = { media.progressPercent }
             )
 
             val remainingTime = (media.duration.minToMs - media.currentTime).timeDescription(withoutSeconds = true)
