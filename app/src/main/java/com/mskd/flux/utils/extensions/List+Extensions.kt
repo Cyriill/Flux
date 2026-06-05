@@ -3,15 +3,22 @@ package com.mskd.flux.utils.extensions
 import com.mskd.flux.model.artwork.Episode
 import com.mskd.flux.model.artwork.Status
 
+fun List<Episode>.sort() : List<Episode> {
+    return this.sortedWith(compareBy({ it.season }, { it.number }))
+}
 fun List<Episode>.getPreviousEpisodesFor(episode: Episode) : List<Episode> {
     return this.filter {
         it.season < episode.season || (it.season == episode.season && it.number < episode.number)
     }
 }
 
-val List<Episode>.firstEpisodeToWatch get() = this.firstOrNull { it.status == Status.IS_WATCHING } // First episode watching
-    ?: this.firstOrNull { it.status == Status.TO_WATCH } // First episode to watch
-    ?: this.firstOrNull() // First episode
+fun List<Episode>.firstEpisodeToWatch() : Episode? {
+    val sortedEpisodes = this.sort()
+
+    return sortedEpisodes.firstOrNull { it.status == Status.IS_WATCHING } // First episode watching
+        ?: sortedEpisodes.firstOrNull { it.status == Status.TO_WATCH } // First episode to watch
+        ?: sortedEpisodes.firstOrNull() // First episode
+}
 
 val List<Episode>.firstEpisode get() = this.minWith(compareBy<Episode> { it.season }.thenBy { it.number })
 val List<Episode>.lastEpisode get() = this.maxWith(compareBy<Episode> { it.season }.thenBy { it.number })
