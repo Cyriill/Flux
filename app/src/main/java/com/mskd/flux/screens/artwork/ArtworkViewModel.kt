@@ -161,7 +161,7 @@ class ArtworkViewModel @AssistedInject constructor(
                 val episodes = fullArtwork.episodes.filter { it.season == season }
                 episodes
                     .firstOrNull { it.id == userState.selectedMedia?.mediaId }
-                    ?: episodes.firstEpisodeToWatch
+                    ?: episodes.firstEpisodeToWatch()
             }
         }
     }

@@ -26,7 +26,7 @@ sealed class FullArtwork {
 
             when {
                 episodes.all { it.status == Status.TO_WATCH } || episodes.all { it.status == Status.WATCHED  } -> this.artwork.imagePath
-                else -> episodes.firstEpisodeToWatch?.let { episode ->
+                else -> episodes.firstEpisodeToWatch()?.let { episode ->
                     seasons.find { it.season == episode.season }?.imagePath
                 } ?: this.artwork.imagePath
             }
