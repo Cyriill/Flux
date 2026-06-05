@@ -159,17 +159,18 @@ fun ArtworkScreenContent(
         label = "TitleAlphaAnimation"
     )
 
+    val title = when {
+        isLargeScreen -> null
+        fullArtwork is FullArtwork.FullShow -> (fullArtwork.seasons.find { it.season == selectedSeason }?.title ?: "").ifBlank { fullArtwork.artwork.title }
+        else -> null
+    }
+
     FluxScaffold(
         modifier = Modifier.graphicsLayer { alpha = animatedAlpha },
-        title = when {
-            isLargeScreen -> null
-            fullArtwork is FullArtwork.FullMovie -> fullArtwork.artwork.title
-            fullArtwork is FullArtwork.FullShow -> fullArtwork.seasons.find { it.season == selectedSeason }?.title ?: fullArtwork.artwork.title
-            else -> null
-        },
+        title = title,
         topAppBarColors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.Transparent,
-            scrolledContainerColor = if (fullArtwork.contentType == ContentType.SHOW && !isLargeScreen) MaterialTheme.colorScheme.background else Color.Transparent,
+            scrolledContainerColor = if (title?.isNotBlank() == true) MaterialTheme.colorScheme.background else Color.Transparent,
             titleContentColor = MaterialTheme.colorScheme.onBackground,
         ),
         actions = {
