@@ -4,14 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -23,12 +21,11 @@ import com.mskd.flux.mockups.MediaMockups
 import com.mskd.flux.model.artwork.FullArtwork
 import com.mskd.flux.model.artwork.Media
 import com.mskd.flux.screens.artwork.ArtworkIntent
-import com.mskd.flux.screens.artwork.composables.common.ArtworkButtons
 import com.mskd.flux.screens.artwork.composables.common.ArtworkDescriptionsPager
-import com.mskd.flux.screens.artwork.composables.common.ArtworkImage
-import com.mskd.flux.screens.artwork.composables.episodes.EpisodeItem
-import com.mskd.flux.screens.artwork.composables.episodes.SeasonsTabs
-import com.mskd.flux.ui.component.Text
+import com.mskd.flux.screens.artwork.composables.common.ArtworkHeader
+import com.mskd.flux.ui.component.global.Text
+import com.mskd.flux.ui.component.media.EpisodeDropDownMenu
+import com.mskd.flux.ui.component.media.EpisodeItem
 import com.mskd.flux.ui.theme.AppTheme
 import com.mskd.flux.ui.theme.Ui
 import com.mskd.flux.utils.PortraitPreview
@@ -37,38 +34,25 @@ import com.mskd.flux.utils.PortraitPreview
 @Composable
 fun ArtworkContentRegular(
     fullArtwork: FullArtwork,
-    currentMedia: Media,
-    currentSeason: Int,
+    selectedMedia: Media,
+    selectedSeason: Int?,
+    expandedEpisodeId: Long?,
     scaffoldInnerPadding: PaddingValues,
     sendIntent: (ArtworkIntent) -> Unit,
 ) {
 
-    val state = rememberLazyListState()
-
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        state = state,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
         item {
 
-            ArtworkImage(
-                modifier = Modifier.aspectRatio(6f / 5f),
+            ArtworkHeader(
+                modifier = Modifier.fillMaxWidth(),
                 fullArtwork = fullArtwork,
-                sendIntent = sendIntent
-            )
-
-        }
-
-        item {
-            Spacer(modifier = Modifier.height(Ui.Space.LARGE))
-        }
-
-        item {
-
-            ArtworkButtons(
-                media = currentMedia,
+                currentMedia = selectedMedia,
+                title = fullArtwork.artwork.title,
                 sendIntent = sendIntent
             )
 
@@ -82,7 +66,7 @@ fun ArtworkContentRegular(
 
             ArtworkDescriptionsPager(
                 fullArtwork = fullArtwork,
-                currentMedia = currentMedia
+                currentMedia = selectedMedia
             )
 
         }
@@ -93,7 +77,9 @@ fun ArtworkContentRegular(
 
         (fullArtwork as? FullArtwork.FullShow)?.let { show ->
 
-            if (show.episodes.isNotEmpty()) {
+            val episodes = show.episodes.filter { it.season == selectedSeason }
+
+            if (episodes.isNotEmpty()) {
 
                 item {
 
@@ -116,32 +102,32 @@ fun ArtworkContentRegular(
                     Spacer(modifier = Modifier.height(Ui.Space.MEDIUM))
                 }
 
-                item {
-
-                    SeasonsTabs(
-                        seasons = show.seasons,
-                        currentSeason = currentSeason,
-                        sendIntent = sendIntent
-                    )
-
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(Ui.Space.MEDIUM))
-                }
-
                 items(
-                    items = show.episodes
-                        .filter { it.season == currentSeason }
-                        .sortedBy { it.number },
-                    key = { e -> e.id }
+                    items = episodes.sortedBy { it.number },
+                    key = { e -> e.id to e.currentTime }
                 ) { episode ->
+
 
                     EpisodeItem(
                         modifier = Modifier.animateItem(),
                         episode = episode,
-                        isSelected = episode.id == currentMedia.mediaId,
-                        sendIntent = sendIntent
+                        isSelected = episode.id == selectedMedia.mediaId,
+                        onTap = { sendIntent(ArtworkIntent.PlayMedia(media = episode)) },
+                        isExpanded = episode.id == expandedEpisodeId,
+                        onReadMoreTap = {
+                            if (it) {
+                                sendIntent(ArtworkIntent.ExpandEpisodeDescription(episode = episode))
+                            } else {
+                                sendIntent(ArtworkIntent.CollapseEpisodeDescription)
+                            }
+                        },
+                        dropDownMenu = { onDismissRequest ->
+                            EpisodeDropDownMenu(
+                                episode = episode,
+                                onDismissRequest = onDismissRequest,
+                                sendIntent = sendIntent
+                            )
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(Ui.Space.SMALL))
@@ -166,8 +152,9 @@ fun ArtworkContentMovie_Preview() {
     AppTheme {
         ArtworkContentRegular(
             fullArtwork = MediaMockups.fullMovie,
-            currentMedia = MediaMockups.movie,
-            currentSeason = -1,
+            selectedMedia = MediaMockups.movie,
+            selectedSeason = null,
+            expandedEpisodeId = null,
             scaffoldInnerPadding = PaddingValues.Zero,
             sendIntent = {}
         )
@@ -180,8 +167,9 @@ fun ArtworkContentShow_Preview() {
     AppTheme {
         ArtworkContentRegular(
             fullArtwork = MediaMockups.fullShow,
-            currentMedia = MediaMockups.episode1,
-            currentSeason = 1,
+            selectedMedia = MediaMockups.episode1,
+            selectedSeason = 1,
+            expandedEpisodeId = null,
             scaffoldInnerPadding = PaddingValues.Zero,
             sendIntent = {}
         )

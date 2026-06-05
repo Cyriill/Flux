@@ -5,19 +5,13 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
@@ -30,31 +24,31 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowSizeClass
 import com.mskd.flux.R
 import com.mskd.flux.mockups.MediaMockups
 import com.mskd.flux.model.State
+import com.mskd.flux.model.artwork.ContentType
 import com.mskd.flux.model.artwork.FullArtwork
+import com.mskd.flux.model.artwork.Media
 import com.mskd.flux.navigation.Route
 import com.mskd.flux.navigation.Route.Player
 import com.mskd.flux.screens.artwork.composables.ArtworkContentLarge
 import com.mskd.flux.screens.artwork.composables.ArtworkContentRegular
-import com.mskd.flux.screens.artwork.composables.common.SeasonDialog
-import com.mskd.flux.ui.component.ErrorScreen
-import com.mskd.flux.ui.component.FluxDialog
-import com.mskd.flux.ui.component.FluxDropDownMenu
-import com.mskd.flux.ui.component.FluxDropDownMenuItem
 import com.mskd.flux.ui.component.LoadingScreen
-import com.mskd.flux.ui.component.Text
+import com.mskd.flux.ui.component.global.ErrorScreen
+import com.mskd.flux.ui.component.global.FluxDialog
+import com.mskd.flux.ui.component.global.FluxDropDownMenu
+import com.mskd.flux.ui.component.global.FluxDropDownMenuItem
+import com.mskd.flux.ui.component.global.FluxScaffold
+import com.mskd.flux.ui.component.global.ResetProgressDialog
+import com.mskd.flux.ui.component.global.Text
 import com.mskd.flux.ui.theme.AppTheme
-import com.mskd.flux.ui.theme.Ui
 import com.mskd.flux.utils.ExternalPlayer
 import com.mskd.flux.utils.FluxPreview
 import com.mskd.flux.utils.WebLink
@@ -63,11 +57,12 @@ import com.mskd.flux.utils.rememberExternalPlayerLauncher
 @Composable
 fun ArtworkScreen(
     artworkId: Long,
+    season: Int?,
     colorScheme: ColorScheme,
     navigate: (Route) -> Unit,
     onBack: () -> Unit,
     viewModel: ArtworkViewModel = hiltViewModel<ArtworkViewModel, ArtworkViewModel.Factory>(
-        creationCallback = { factory -> factory.create(artworkId) }
+        creationCallback = { factory -> factory.create(artworkId = artworkId, season = season) }
     )
 ) {
 
@@ -86,8 +81,7 @@ fun ArtworkScreen(
             when (event) {
                 ArtworkEvent.BackToPreviousScreen -> onBack()
                 is ArtworkEvent.PlayMedia -> navigate(Player(mediaId = event.mediaId))
-                is ArtworkEvent.OpenArtworkInfo -> WebLink.openPage(context = context, url = event.artwork.infoUrl)
-                is ArtworkEvent.OpenEpisodeInfo -> WebLink.openPage(context = context, url = event.episode.infoUrl)
+                is ArtworkEvent.OpenUrlInfo -> WebLink.openPage(context = context, url = event.url)
                 is ArtworkEvent.LaunchExternalPlayer -> {
                     ExternalPlayer.launchPlayer(
                         context = context,
@@ -115,9 +109,14 @@ fun ArtworkScreen(
                 )
             }
             State.Content::class -> {
+                val content = (uiState.state as State.Content<ArtworkContent>).content
                 MaterialTheme(colorScheme = colorScheme) {
                     ArtworkScreenContent(
-                        uiState = uiState,
+                        fullArtwork = content.fullArtwork,
+                        selectedMedia = content.selectedMedia,
+                        selectedSeason = content.selectedSeason,
+                        expandedEpisodeId = content.expandedEpisodeId,
+                        dialog = content.dialog,
                         sendIntent = viewModel::handleIntent
                     )
                 }
@@ -127,30 +126,18 @@ fun ArtworkScreen(
 
     }
 
-    if (uiState.episodePendingConfirmation != null) {
-        FluxDialog(
-            content = {
-                Text.Body.Large(text = stringResource(R.string.mark_previous_episodes_as_watched))
-            },
-            onDismiss = { viewModel.handleIntent(ArtworkIntent.CloseEpisodesStatusDialog) },
-            onValidate = { viewModel.handleIntent(ArtworkIntent.MarkPreviousEpisodesAsWatched) }
-        )
-    }
-
-    if (uiState.showResetProgressDialog) {
-        ArtworkResetProgressDialog(sendIntent = viewModel::handleIntent)
-    }
-
-
 }
 
 @Composable
 fun ArtworkScreenContent(
-    uiState: ArtworkUiState,
+    fullArtwork: FullArtwork,
+    selectedMedia: Media,
+    selectedSeason: Int?,
+    expandedEpisodeId: Long?,
+    dialog: ArtworkDialog?,
     sendIntent: (ArtworkIntent) -> Unit
 ) {
 
-    val fullArtwork = (uiState.state as State.Content<FullArtwork>).content
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
     val isLargeScreen = windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
 
@@ -172,95 +159,80 @@ fun ArtworkScreenContent(
         label = "TitleAlphaAnimation"
     )
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        containerColor = MaterialTheme.colorScheme.background,
-        topBar = {
+    val title = when {
+        isLargeScreen -> null
+        fullArtwork is FullArtwork.FullShow -> (fullArtwork.seasons.find { it.season == selectedSeason }?.title ?: "").ifBlank { fullArtwork.artwork.title }
+        else -> null
+    }
 
-            CenterAlignedTopAppBar(
-                modifier = Modifier.fillMaxWidth(),
-                title = {
-
-                    Text.Adaptive(
-                        modifier = Modifier
-                            .padding(vertical = Ui.Space.EXTRA_SMALL)
-                            .graphicsLayer { alpha = animatedAlpha },
-                        text = fullArtwork.artwork.title,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.headlineSmall,
-                        maxLines = 2,
-                        autoSize = TextAutoSize.StepBased(
-                            maxFontSize = MaterialTheme.typography.headlineSmall.fontSize,
-                            minFontSize = MaterialTheme.typography.titleSmall.fontSize
-                        )
+    FluxScaffold(
+        modifier = Modifier.graphicsLayer { alpha = animatedAlpha },
+        title = title,
+        topAppBarColors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.Transparent,
+            scrolledContainerColor = if (title?.isNotBlank() == true) MaterialTheme.colorScheme.background else Color.Transparent,
+            titleContentColor = MaterialTheme.colorScheme.onBackground,
+        ),
+        actions = {
+            IconButton(
+                onClick = { showMenu = true },
+                content = {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "menu button"
                     )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    scrolledContainerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
-                ),
-                actions = {
-                    IconButton(
-                        onClick = { showMenu = true },
-                        content = {
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = "menu button"
-                            )
-                        }
-                    )
-
-                    if (showMenu) {
-                        ArtworkDropDownMenu(
-                            onDismissRequest = { showMenu = false },
-                            sendIntent = sendIntent
-                        )
-                    }
-
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = { sendIntent(ArtworkIntent.OnBackTap) },
-                        content = {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                                contentDescription = "back button"
-                            )
-                        }
-                    )
-                },
-                scrollBehavior = scrollBehavior
+                }
             )
 
-        }
+            if (showMenu) {
+                ArtworkDropDownMenu(
+                    onDismissRequest = { showMenu = false },
+                    sendIntent = sendIntent
+                )
+            }
+
+        },
+        onBackTap = { sendIntent(ArtworkIntent.OnBackTap) },
+        scrollBehavior = scrollBehavior
     ) { innerPadding ->
 
         if (isLargeScreen) {
             ArtworkContentLarge(
                 fullArtwork = fullArtwork,
-                currentMedia = uiState.selectedMedia,
-                currentSeason = uiState.selectedSeason,
+                selectedMedia = selectedMedia,
+                selectedSeason = selectedSeason,
+                expandedEpisodeId = expandedEpisodeId,
                 scaffoldInnerPadding = innerPadding,
                 sendIntent = sendIntent,
             )
         } else {
             ArtworkContentRegular(
                 fullArtwork = fullArtwork,
-                currentMedia = uiState.selectedMedia,
-                currentSeason = uiState.selectedSeason,
+                selectedMedia = selectedMedia,
+                selectedSeason = selectedSeason,
+                expandedEpisodeId = expandedEpisodeId,
                 scaffoldInnerPadding = innerPadding,
                 sendIntent = sendIntent,
             )
         }
 
-        uiState.previewForSeason?.let {
-            SeasonDialog(
-                season = it,
-                sendIntent = sendIntent,
-            )
-        }
+    }
 
+    if (dialog is ArtworkDialog.EpisodeStatusConfirmation) {
+        FluxDialog(
+            content = {
+                Text.Body.Large(text = stringResource(R.string.mark_previous_episodes_as_watched))
+            },
+            onDismiss = { sendIntent(ArtworkIntent.CloseDialog) },
+            onValidate = { sendIntent(ArtworkIntent.MarkPreviousEpisodesAsWatched) }
+        )
+    }
+
+    if (dialog is ArtworkDialog.ResetProgressConfirmation) {
+        ResetProgressDialog(
+            onValidate = { sendIntent(ArtworkIntent.ResetProgress) },
+            onDismiss = { sendIntent(ArtworkIntent.CloseDialog) }
+        )
     }
 
 }
@@ -284,7 +256,7 @@ fun ArtworkDropDownMenu(
             FluxDropDownMenuItem(
                 text = stringResource(R.string.reset_progress),
                 onClick = {
-                    sendIntent(ArtworkIntent.ShowResetProgressDialog(show = true))
+                    sendIntent(ArtworkIntent.ShowResetProgressDialog)
                     onDismissRequest()
                 },
                 leadingIcon = { Icon(painter = painterResource(R.drawable.ic_eraser), contentDescription = stringResource(R.string.reset_progress)) },
@@ -298,33 +270,13 @@ fun ArtworkDropDownMenu(
 @Composable
 fun ArtworkScreenContent_Preview() {
     AppTheme {
-
         ArtworkScreenContent(
-            uiState = ArtworkUiState(
-                state = State.Content(content = MediaMockups.fullShow),
-                selectedMedia = MediaMockups.episode1,
-                selectedSeason = MediaMockups.episode1.season
-            ),
+            fullArtwork = MediaMockups.fullShow,
+            selectedMedia = MediaMockups.episode1,
+            selectedSeason = MediaMockups.episode1.season,
+            expandedEpisodeId = null,
+            dialog = null,
             sendIntent = {}
         )
     }
-}
-
-@Composable
-fun ArtworkResetProgressDialog(
-    sendIntent: (ArtworkIntent) -> Unit
-) {
-
-    FluxDialog(
-        title = stringResource(R.string.reset_progress),
-        onDismiss = { sendIntent(ArtworkIntent.ShowResetProgressDialog(show = false)) },
-        onValidateLabel = stringResource(R.string.reset),
-        onValidate = { sendIntent(ArtworkIntent.ResetProgress) },
-        content = {
-            Text.Body.Large(
-                text = stringResource(R.string.reset_progress_confirmation)
-            )
-        }
-    )
-
 }

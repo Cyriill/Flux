@@ -1,6 +1,7 @@
 package com.mskd.flux.data.repository.customization
 
 import android.content.Context
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStore
@@ -14,7 +15,7 @@ val Context.customizationDatastore by preferencesDataStore(
     )
 )
 
-interface CustomizationRepository{
+interface CustomizationRepository {
 
     val flow: Flow<State>
 
@@ -24,10 +25,15 @@ interface CustomizationRepository{
 
     suspend fun setWaveProgress(waveProgress: Boolean)
 
+    suspend fun setLargeEpisodeImage(large: Boolean)
+
     data class State(
         val uiTheme: Ui.THEME = Ui.THEME.SYSTEM,
         val color: Int? = null,
-        val waveProgress: Boolean = true
+        val waveProgress: Boolean = true,
+        val largeEpisodeImage: Boolean = false
     )
 
 }
+
+val LocalCustomization = staticCompositionLocalOf { CustomizationRepository.State() }

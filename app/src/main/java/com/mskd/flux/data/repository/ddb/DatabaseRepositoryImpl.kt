@@ -6,9 +6,10 @@ import com.mskd.flux.model.artwork.Artwork
 import com.mskd.flux.model.artwork.Episode
 import com.mskd.flux.model.artwork.Movie
 import com.mskd.flux.model.artwork.Season
+import com.mskd.flux.utils.extensions.sort
 import com.mskd.flux.utils.extensions.tmdbImage
-import com.mskd.flux.utils.extensions.tmdbImageLarge
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class DatabaseRepositoryImpl @Inject constructor(private val dao: DatabaseDao) : DatabaseRepository {
@@ -26,11 +27,11 @@ class DatabaseRepositoryImpl @Inject constructor(private val dao: DatabaseDao) :
     }
 
     override fun flowEpisodes(artworkId: Long): Flow<List<Episode>> {
-        return dao.flowEpisodes(artworkId = artworkId)
+        return dao.flowEpisodes(artworkId = artworkId).map { it.sort() }
     }
 
     override fun flowSeasons(artworkId: Long): Flow<List<Season>> {
-        return dao.flowSeasons(artworkId = artworkId)
+        return dao.flowSeasons(artworkId = artworkId).map { it.sortedBy { s -> s.season } }
     }
 
     override suspend fun saveArtworks(artworks: List<Artwork>) {
@@ -70,11 +71,11 @@ class DatabaseRepositoryImpl @Inject constructor(private val dao: DatabaseDao) :
     }
 
     override suspend fun getEpisodes(artworkId: Long): List<Episode> {
-        return dao.getEpisodes(artworkId = artworkId)
+        return dao.getEpisodes(artworkId = artworkId).sort()
     }
 
     override suspend fun getEpisodes(): List<Episode> {
-        return dao.getEpisodes()
+        return dao.getEpisodes().sort()
     }
 
     override suspend fun getEpisodesNotInFiles(files: List<UserFile>): List<Episode> {
@@ -108,7 +109,7 @@ class DatabaseRepositoryImpl @Inject constructor(private val dao: DatabaseDao) :
 
         return buildList {
             addAll(artworks.filter { it.imagePath.isNotBlank() }.map { it.imagePath.tmdbImage })
-            addAll(artworks.filter { it.imagePath.isNotBlank() }.map { it.bannerPath.tmdbImageLarge })
+            addAll(artworks.filter { it.bannerPath.isNotBlank() }.map { it.bannerPath.tmdbImage })
             addAll(episodes.filter { it.isNotBlank() }.map { it.tmdbImage })
             addAll(seasons.filter { it.isNotBlank() }.map { it.tmdbImage })
         }

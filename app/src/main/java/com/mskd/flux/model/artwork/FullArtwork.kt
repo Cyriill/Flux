@@ -26,7 +26,7 @@ sealed class FullArtwork {
 
             when {
                 episodes.all { it.status == Status.TO_WATCH } || episodes.all { it.status == Status.WATCHED  } -> this.artwork.imagePath
-                else -> episodes.firstEpisodeToWatch?.let { episode ->
+                else -> episodes.firstEpisodeToWatch()?.let { episode ->
                     seasons.find { it.season == episode.season }?.imagePath
                 } ?: this.artwork.imagePath
             }
@@ -37,6 +37,11 @@ sealed class FullArtwork {
     val isWatching: Boolean get() = when (this) {
         is FullMovie -> this.movie.status == Status.IS_WATCHING
         is FullShow -> !(this.episodes.all { it.status == Status.TO_WATCH } || this.episodes.all { it.status == Status.WATCHED })
+    }
+
+    val contentType: ContentType get() = when (this) {
+        is FullMovie -> ContentType.MOVIE
+        is FullShow -> ContentType.SHOW
     }
 
 }

@@ -1,5 +1,6 @@
 package com.mskd.flux.screens.artwork.composables
 
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -25,9 +27,9 @@ import com.mskd.flux.screens.artwork.ArtworkIntent
 import com.mskd.flux.screens.artwork.composables.common.ArtworkButtons
 import com.mskd.flux.screens.artwork.composables.common.ArtworkDescriptionsPager
 import com.mskd.flux.screens.artwork.composables.common.ArtworkImage
-import com.mskd.flux.screens.artwork.composables.episodes.EpisodeItem
-import com.mskd.flux.screens.artwork.composables.episodes.SeasonsTabs
-import com.mskd.flux.ui.component.Text
+import com.mskd.flux.ui.component.global.Text
+import com.mskd.flux.ui.component.media.EpisodeDropDownMenu
+import com.mskd.flux.ui.component.media.EpisodeItem
 import com.mskd.flux.ui.theme.AppTheme
 import com.mskd.flux.ui.theme.Ui
 import com.mskd.flux.utils.LandscapePreview
@@ -35,8 +37,9 @@ import com.mskd.flux.utils.LandscapePreview
 @Composable
 fun ArtworkContentLarge(
     fullArtwork: FullArtwork,
-    currentMedia: Media,
-    currentSeason: Int,
+    selectedMedia: Media,
+    selectedSeason: Int?,
+    expandedEpisodeId: Long?,
     scaffoldInnerPadding: PaddingValues,
     sendIntent: (ArtworkIntent) -> Unit,
 ) {
@@ -50,7 +53,8 @@ fun ArtworkContentLarge(
             ArtworkImage(
                 modifier = Modifier.fillMaxSize(),
                 fullArtwork = fullArtwork,
-                sendIntent = sendIntent
+                currentMedia = selectedMedia,
+                orientation = Orientation.Horizontal,
             )
 
         }
@@ -66,8 +70,28 @@ fun ArtworkContentLarge(
 
             item {
 
+                Text.Display.Small(
+                    modifier = Modifier
+                        .padding(Ui.Space.MEDIUM)
+                        .wrapContentWidth(),
+                    text = when (fullArtwork) {
+                        is FullArtwork.FullMovie -> fullArtwork.artwork.title
+                        is FullArtwork.FullShow -> fullArtwork.seasons.find { it.season == selectedSeason }?.title ?: fullArtwork.artwork.title
+                    },
+                    color = MaterialTheme.colorScheme.onBackground,
+                    emphasized = true
+                )
+
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(Ui.Space.LARGE))
+            }
+
+            item {
+
                 ArtworkButtons(
-                    media = currentMedia,
+                    media = selectedMedia,
                     sendIntent = sendIntent
                 )
 
@@ -81,7 +105,7 @@ fun ArtworkContentLarge(
 
                 ArtworkDescriptionsPager(
                     fullArtwork = fullArtwork,
-                    currentMedia = currentMedia
+                    currentMedia = selectedMedia
                 )
 
             }
@@ -92,7 +116,9 @@ fun ArtworkContentLarge(
 
             (fullArtwork as? FullArtwork.FullShow)?.let { show ->
 
-                if (show.episodes.isNotEmpty()) {
+                val episodes = show.episodes.filter { it.season == selectedSeason }
+
+                if (episodes.isNotEmpty()) {
 
                     item {
 
@@ -115,32 +141,31 @@ fun ArtworkContentLarge(
                         Spacer(modifier = Modifier.height(Ui.Space.MEDIUM))
                     }
 
-                    item {
-
-                        SeasonsTabs(
-                            seasons = show.seasons,
-                            currentSeason = currentSeason,
-                            sendIntent = sendIntent
-                        )
-
-                    }
-
-                    item {
-                        Spacer(modifier = Modifier.height(Ui.Space.MEDIUM))
-                    }
-
                     items(
-                        items = show.episodes
-                            .filter { it.season == currentSeason }
-                            .sortedBy { it.number },
-                        key = { e -> e.id }
+                        items = episodes.sortedBy { it.number },
+                        key = { e -> e.id to e.currentTime}
                     ) { episode ->
 
                         EpisodeItem(
                             modifier = Modifier.animateItem(),
                             episode = episode,
-                            isSelected = episode.id == currentMedia.mediaId,
-                            sendIntent = sendIntent
+                            isSelected = episode.id == selectedMedia.mediaId,
+                            isExpanded = episode.id == expandedEpisodeId,
+                            onTap = { sendIntent(ArtworkIntent.PlayMedia(media = episode)) },
+                            onReadMoreTap = {
+                                if (it) {
+                                    sendIntent(ArtworkIntent.ExpandEpisodeDescription(episode = episode))
+                                } else {
+                                    sendIntent(ArtworkIntent.CollapseEpisodeDescription)
+                                }
+                            },
+                            dropDownMenu = { onDismissRequest ->
+                                EpisodeDropDownMenu(
+                                    episode = episode,
+                                    onDismissRequest = onDismissRequest,
+                                    sendIntent = sendIntent
+                                )
+                            }
                         )
 
                         Spacer(modifier = Modifier.height(Ui.Space.SMALL))
@@ -168,8 +193,9 @@ fun ArtworkContentLargeMovie_Preview() {
     AppTheme {
         ArtworkContentLarge(
             fullArtwork = MediaMockups.fullMovie,
-            currentMedia = MediaMockups.movie,
-            currentSeason = -1,
+            selectedMedia = MediaMockups.movie,
+            selectedSeason = null,
+            expandedEpisodeId = null,
             scaffoldInnerPadding = PaddingValues.Zero,
             sendIntent = {}
         )
@@ -182,8 +208,9 @@ fun ArtworkContentLargeShow_Preview() {
     AppTheme {
         ArtworkContentLarge(
             fullArtwork = MediaMockups.fullShow,
-            currentMedia = MediaMockups.episode1,
-            currentSeason = 1,
+            selectedMedia = MediaMockups.episode1,
+            selectedSeason = 1,
+            expandedEpisodeId = null,
             scaffoldInnerPadding = PaddingValues.Zero,
             sendIntent = {}
         )

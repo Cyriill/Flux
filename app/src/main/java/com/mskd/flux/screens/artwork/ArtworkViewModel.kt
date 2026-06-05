@@ -1,6 +1,5 @@
 package com.mskd.flux.screens.artwork
 
-import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mskd.flux.data.repository.settings.SettingsRepository
@@ -8,9 +7,8 @@ import com.mskd.flux.model.State
 import com.mskd.flux.model.artwork.Episode
 import com.mskd.flux.model.artwork.FullArtwork
 import com.mskd.flux.model.artwork.Media
-import com.mskd.flux.model.artwork.Season
 import com.mskd.flux.model.artwork.Status
-import com.mskd.flux.screens.artwork.ArtworkEvent.OpenEpisodeInfo
+import com.mskd.flux.screens.artwork.ArtworkEvent.OpenUrlInfo
 import com.mskd.flux.useCases.artwork.ArtworkUC
 import com.mskd.flux.useCases.progress.ProgressUC
 import com.mskd.flux.utils.extensions.firstEpisode
@@ -33,6 +31,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = ArtworkViewModel.Factory::class)
 class ArtworkViewModel @AssistedInject constructor(
     @Assisted val artworkId: Long,
+    @Assisted val season: Int?,
     private val artworkUC: ArtworkUC,
     private val settingsRepository: SettingsRepository,
     private val progressUC: ProgressUC
@@ -42,31 +41,16 @@ class ArtworkViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(artworkId: Long): ArtworkViewModel
+        fun create(artworkId: Long, season: Int?): ArtworkViewModel
     }
 
     //endregion
 
-    //region Sub states
+    //region Computed properties
 
-    @Immutable
-    private data class UserState(
-        val selectedMedia: Media? = null,
-        val selectedSeason: Int? = null,
-        val episodePendingConfirmation: Episode? = null,
-        val showResetProgressDialog: Boolean = false,
-        val previewForSeason: Season? = null
-    )
-
-    //endregion
-
-    //region Variables
-
-    private var selectedMedia: Media? = null
-
-
-    private val fullArtwork : FullArtwork? get() = (uiState.value.state as? State.Content)?.content
-    private val episodes : List<Episode> get() = (fullArtwork as? FullArtwork.FullShow)?.episodes.orEmpty()
+    private val artworkContent: ArtworkContent? get() = (uiState.value.state as? State.Content)?.content
+    private val fullArtwork: FullArtwork? get() = artworkContent?.fullArtwork
+    private val episodes: List<Episode> get() = (fullArtwork as? FullArtwork.FullShow)?.episodes.orEmpty()
 
     //endregion
 
@@ -75,18 +59,29 @@ class ArtworkViewModel @AssistedInject constructor(
     private val _event = MutableSharedFlow<ArtworkEvent>()
     val event = _event.asSharedFlow()
 
-    private val _subState = MutableStateFlow(UserState())
+    private val _userState = MutableStateFlow(ArtworkUserState())
 
     val uiState: StateFlow<ArtworkUiState> = combine(
         artworkUC.flow,
         settingsRepository.flow,
-        _subState
-    ) { artworkState, settings, subState ->
-        buildUiState(
-            artworkState = artworkState,
-            settings = settings,
-            subState = subState
-        )
+        _userState,
+    ) { artworkState, settings, userState ->
+
+        when (artworkState) {
+            is State.Loading -> ArtworkUiState(state = State.Loading)
+            is State.Error -> ArtworkUiState(state = State.Error)
+            is State.Content -> {
+
+                val dataState = ArtworkDataState(
+                    fullArtwork = artworkState.content,
+                    useExternalPlayer = settings.externalPlayer,
+                )
+
+                ArtworkUiState(state = mergeStates(dataState, userState))
+
+            }
+        }
+
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -108,18 +103,25 @@ class ArtworkViewModel @AssistedInject constructor(
 
     fun handleIntent(intent: ArtworkIntent) = viewModelScope.launch {
         when (intent) {
+            //Navigation
             ArtworkIntent.OnBackTap -> _event.emit(ArtworkEvent.BackToPreviousScreen)
-            is ArtworkIntent.SelectSeason -> selectSeason(season = intent.season)
             is ArtworkIntent.PlayMedia -> playMedia(media = intent.media, forceInternal = intent.forceInternal)
-            ArtworkIntent.CloseEpisodesStatusDialog -> closeStatusDialog()
+            ArtworkIntent.OpenArtworkInfo -> openArtworkInfo()
+            is ArtworkIntent.OpenEpisodeInfo -> _event.emit(OpenUrlInfo(url = intent.episode.infoUrl))
+
+            // Dialogs
+            ArtworkIntent.CloseDialog -> closeDialog()
+            ArtworkIntent.ShowResetProgressDialog -> showResetProgressDialog()
+
+            // Status
             is ArtworkIntent.ChangeWatchStatus -> changeWatchStatus(media = intent.media)
             ArtworkIntent.MarkPreviousEpisodesAsWatched -> markPreviousEpisodesAsWatched()
-            ArtworkIntent.OpenArtworkInfo -> openArtworkInfo()
-            is ArtworkIntent.OpenEpisodeInfo -> _event.emit(OpenEpisodeInfo(episode = intent.episode))
-            is ArtworkIntent.OnExternalPlayerResult -> onExternalPlayerResult(intent.progress)
-            is ArtworkIntent.ShowResetProgressDialog -> showResetProgressDialog(show = intent.show)
             ArtworkIntent.ResetProgress -> resetProgress()
-            is ArtworkIntent.ShowPreviewForSeason -> showPreviewForSeason(season = intent.season)
+
+            // Other
+            is ArtworkIntent.OnExternalPlayerResult -> onExternalPlayerResult(intent.progress)
+            is ArtworkIntent.ExpandEpisodeDescription -> expandEpisodeDescription(episode = intent.episode)
+            ArtworkIntent.CollapseEpisodeDescription -> collapseEpisodeDescription()
         }
     }
 
@@ -127,48 +129,47 @@ class ArtworkViewModel @AssistedInject constructor(
 
     //region Private Methods
 
-    private fun buildUiState(
-        artworkState: State<FullArtwork>,
-        settings: SettingsRepository.State,
-        subState: UserState
-    ) : ArtworkUiState {
+    private fun mergeStates(
+        dataState: ArtworkDataState,
+        userState: ArtworkUserState,
+    ): State<ArtworkContent> {
 
-        val fullArtwork = (artworkState as? State.Content<FullArtwork>)?.content
-        val episodes: List<Episode> = (fullArtwork as? FullArtwork.FullShow)?.episodes ?: emptyList()
+        val selectedMedia = resolveSelectedMedia(
+            fullArtwork = dataState.fullArtwork,
+            userState = userState
+        ) ?: return State.Error
 
-        val episode = episodes.firstOrNull { it.id == (subState.selectedMedia as? Episode)?.id } // Selected media by user
-            ?: episodes.firstEpisodeToWatch
-
-        val media = (fullArtwork as? FullArtwork.FullMovie)?.movie ?: episode
-
-        val season = subState.selectedSeason ?: (media as? Episode)?.season ?: -1
-
-        return when {
-            media == null -> ArtworkUiState(state = State.Error)
-            else -> {
-                ArtworkUiState(
-                    state = artworkState,
-                    selectedSeason = season,
-                    selectedMedia = media,
-                    episodePendingConfirmation = subState.episodePendingConfirmation,
-                    useExternalPlayer = settings.externalPlayer,
-                    showResetProgressDialog = subState.showResetProgressDialog,
-                    previewForSeason = subState.previewForSeason
-                )
-            }
-        }
-
+        return State.Content(
+            ArtworkContent(
+                fullArtwork = dataState.fullArtwork,
+                selectedMedia = selectedMedia,
+                selectedSeason = season,
+                expandedEpisodeId = userState.expandedEpisodeId,
+                useExternalPlayer = dataState.useExternalPlayer,
+                dialog = userState.dialog,
+            )
+        )
     }
 
-    private fun selectSeason(season: Int) {
-        _subState.update { it.copy(selectedSeason = season) }
+    private fun resolveSelectedMedia(
+        fullArtwork: FullArtwork,
+        userState: ArtworkUserState,
+    ): Media? {
+        return when (fullArtwork) {
+            is FullArtwork.FullMovie -> fullArtwork.movie
+            is FullArtwork.FullShow -> {
+                val episodes = fullArtwork.episodes.filter { it.season == season }
+                episodes
+                    .firstOrNull { it.id == userState.selectedMedia?.mediaId }
+                    ?: episodes.firstEpisodeToWatch()
+            }
+        }
     }
 
     private suspend fun playMedia(media: Media, forceInternal: Boolean) {
-        _subState.update { it.copy(selectedMedia = media) }
-        selectedMedia = media
+        _userState.update { it.copy(selectedMedia = media) }
 
-        if (uiState.value.useExternalPlayer && !forceInternal)
+        if (artworkContent?.useExternalPlayer == true && !forceInternal)
             _event.emit(ArtworkEvent.LaunchExternalPlayer(media = media))
         else
             _event.emit(ArtworkEvent.PlayMedia(mediaId = media.mediaId))
@@ -176,16 +177,18 @@ class ArtworkViewModel @AssistedInject constructor(
     }
 
     private fun showStatusDialog(episode: Episode) {
-        _subState.update { it.copy(episodePendingConfirmation = episode) }
-    }
-
-    private fun closeStatusDialog() {
-        _subState.update { it.copy(episodePendingConfirmation = null) }
+        _userState.update { it.copy(dialog = ArtworkDialog.EpisodeStatusConfirmation(episode = episode)) }
     }
 
     private suspend fun openArtworkInfo() {
-        (uiState.value.state as? State.Content)?.content?.let {
-            _event.emit(ArtworkEvent.OpenArtworkInfo(artwork = it.artwork))
+        artworkContent?.let { content ->
+
+            val url = when (val fullArtwork = content.fullArtwork) {
+                is FullArtwork.FullMovie -> fullArtwork.artwork.infoUrl
+                is FullArtwork.FullShow -> fullArtwork.seasons.find { it.season == season }?.infoUrl ?: return@let
+            }
+
+            _event.emit(ArtworkEvent.OpenUrlInfo(url = url))
         }
     }
 
@@ -210,48 +213,56 @@ class ArtworkViewModel @AssistedInject constructor(
 
     private suspend fun markPreviousEpisodesAsWatched() {
 
-        _subState.update { state ->
+        _userState.update { state ->
 
-            val episode = state.episodePendingConfirmation ?: return
+            val episode = (state.dialog as? ArtworkDialog.EpisodeStatusConfirmation)?.episode ?: return
 
             progressUC.markPreviousEpisodesAsWatchedFor(episode = episode)
 
-            state.copy(episodePendingConfirmation = null)
+            state.copy(dialog = null)
 
         }
 
     }
 
     private suspend fun onExternalPlayerResult(progress: Long) {
-        selectedMedia?.let { media ->
+        artworkContent?.selectedMedia?.let { media ->
             progressUC.saveProgress(media = media, progress = progress)
-            selectedMedia = null
         }
     }
 
-    private fun showResetProgressDialog(show: Boolean) {
-        _subState.update { it.copy(showResetProgressDialog = show) }
+    private fun showResetProgressDialog() {
+        _userState.update { it.copy(dialog = ArtworkDialog.ResetProgressConfirmation) }
     }
 
     private suspend fun resetProgress() {
 
         val fullArtwork = fullArtwork ?: return
+        val selectedSeason = artworkContent?.selectedSeason
 
-        progressUC.resetProgress(artwork = fullArtwork.artwork)
+        progressUC.resetProgress(artwork = fullArtwork.artwork, season = selectedSeason)
 
-        _subState.update {
+        _userState.update { state ->
 
-            it.copy(
-                selectedMedia = (fullArtwork as? FullArtwork.FullMovie)?.movie ?: episodes.firstEpisode,
-                showResetProgressDialog = false
+            state.copy(
+                selectedMedia = (fullArtwork as? FullArtwork.FullMovie)?.movie ?: episodes.filter { it.season == selectedSeason }.firstEpisode,
+                dialog = null
             )
 
         }
 
     }
 
-    private fun showPreviewForSeason(season: Season?) {
-        _subState.update { it.copy(previewForSeason = season) }
+    private fun closeDialog() {
+        _userState.update { it.copy(dialog = null) }
+    }
+
+    private fun expandEpisodeDescription(episode: Episode) {
+        _userState.update { it.copy(expandedEpisodeId = episode.id) }
+    }
+
+    private fun collapseEpisodeDescription() {
+        _userState.update { it.copy(expandedEpisodeId = null) }
     }
 
     //endregion
