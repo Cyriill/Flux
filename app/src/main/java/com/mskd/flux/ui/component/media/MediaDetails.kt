@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mskd.flux.R
 import com.mskd.flux.mockups.MediaMockups
+import com.mskd.flux.model.artwork.Artwork
 import com.mskd.flux.model.artwork.Media
 import com.mskd.flux.ui.component.global.Text
 import com.mskd.flux.ui.theme.AppTheme
@@ -26,10 +27,7 @@ import com.mskd.flux.utils.extensions.timeDescription
 import com.mskd.flux.utils.extensions.toRating
 
 @Composable
-fun MediaDetailsHorizontal(
-    media: Media,
-    showRating: Boolean = true
-) {
+fun MediaDetailsHorizontal(media: Media) {
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -37,69 +35,51 @@ fun MediaDetailsHorizontal(
         horizontalArrangement = Arrangement.spacedBy(Ui.Space.SMALL)
     ) {
 
-        media.releaseDate?.let {
-
-            MediaDetailItem(
-                painter = painterResource(R.drawable.ic_date),
-                text = it.formattedText,
-                contentDescription = "release date icon"
-            )
-
-        }
-
-        MediaDetailItem(
-            painter = painterResource(R.drawable.ic_time),
-            text = media.duration.minToMs.timeDescription(),
-            contentDescription = "duration icon"
-        )
-
-        if (media.voteAverage > 0f && showRating) {
-
-            MediaDetailItem(
-                painter = painterResource(R.drawable.ic_rating),
-                text = "${media.voteAverage.toRating}/10",
-                contentDescription = "rating icon"
-            )
-
-        }
+        MediaDetailsItems(media = media)
 
     }
 
 }
 
 @Composable
-fun MediaDetailsVertical(
-    media: Media,
-    showRating: Boolean = false
-) {
+fun MediaDetailsVertical(media: Media) {
 
     Column {
 
-        media.releaseDate?.let {
+        MediaDetailsItems(media = media)
 
-            MediaDetailItem(
-                painter = painterResource(R.drawable.ic_date),
-                text = it.formattedText,
-                contentDescription = "release date icon"
-            )
+    }
 
-        }
+}
+
+@Composable
+
+fun MediaDetailsItems(media: Media) {
+
+    media.releaseDate?.let {
 
         MediaDetailItem(
-            painter = painterResource(R.drawable.ic_time),
-            text = media.duration.minToMs.timeDescription(),
-            contentDescription = "duration icon"
+            painter = painterResource(R.drawable.ic_date),
+            text = it.formattedText,
+            contentDescription = "release date icon"
         )
 
-        if (media.voteAverage > 0f && showRating) {
+    }
 
-            MediaDetailItem(
-                painter = painterResource(R.drawable.ic_rating),
-                text = "${media.voteAverage.toRating}/10",
-                contentDescription = "rating icon"
-            )
+    MediaDetailItem(
+        painter = painterResource(R.drawable.ic_time),
+        text = media.duration.minToMs.timeDescription(),
+        contentDescription = "duration icon"
+    )
 
-        }
+
+    if (media.artworkId != Artwork.UNKNOWN_ID) {
+
+        MediaDetailItem(
+            painter = painterResource(R.drawable.ic_rating),
+            text = "${media.voteAverage.toRating}/10",
+            contentDescription = "rating icon"
+        )
 
     }
 

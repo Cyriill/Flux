@@ -26,16 +26,18 @@ import com.mskd.flux.ui.component.media.OverviewItem
 import com.mskd.flux.ui.theme.AppTheme
 import com.mskd.flux.ui.theme.Ui
 import com.mskd.flux.utils.FluxPreview
+import com.mskd.flux.utils.extensions.clickableWithBounce
 
 @Composable
 fun ArtworkDescriptionsPager(
     fullArtwork: FullArtwork,
+    season: Int? = null,
     currentMedia: Media
 ) {
 
     val pageCount = when (fullArtwork) {
         is FullArtwork.FullMovie -> 1
-        is FullArtwork.FullShow -> if (fullArtwork.isWatching) 2 else 1
+        is FullArtwork.FullShow -> if (fullArtwork.isWatching(forSeason = season)) 2 else 1
     }
 
     var currentPage by remember { mutableIntStateOf(0) }
@@ -52,14 +54,15 @@ fun ArtworkDescriptionsPager(
     ) { i ->
 
         Card(
-            modifier = Modifier.padding(horizontal = Ui.Space.MEDIUM),
-            shape = MaterialTheme.shapes.large,
-            onClick = {
-                when {
-                    currentPage < pageCount - 1 -> currentPage++
-                    currentPage > 0 -> currentPage--
-                }
-            }
+            modifier = Modifier
+                .padding(horizontal = Ui.Space.MEDIUM)
+                .clickableWithBounce {
+                    when {
+                        currentPage < pageCount - 1 -> currentPage++
+                        currentPage > 0 -> currentPage--
+                    }
+                },
+            shape = MaterialTheme.shapes.large
         ) {
 
             when (fullArtwork) {
