@@ -1,3 +1,4 @@
 - UI: Affichage du nom de la saison et du nombre d'épisode
 - UI: Animation sur les résumés
 - FIX: Affichage des "vu récemment"
+- FIX: Récupération des épisodes au dessus de 99
