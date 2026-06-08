@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -19,8 +20,10 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mskd.flux.R
 import com.mskd.flux.screens.customization.composables.CustomizationArtworkSection
+import com.mskd.flux.screens.customization.composables.CustomizationGlobalSection
 import com.mskd.flux.screens.customization.composables.CustomizationPlayerSection
 import com.mskd.flux.screens.customization.composables.CustomizationThemeSection
+import com.mskd.flux.screens.customization.composables.ItemsPerRowDialog
 import com.mskd.flux.ui.component.global.FluxOptionsDialog
 import com.mskd.flux.ui.component.global.FluxScaffold
 import com.mskd.flux.ui.theme.Ui
@@ -46,16 +49,26 @@ fun CustomizationScreen(
         sendIntent = viewModel::handleIntent
     )
 
-    state.dialogState?.let { dialogState ->
-        FluxOptionsDialog(
-            state = dialogState,
-            onValidate = { viewModel.handleIntent(it) },
-            onDismiss = { viewModel.handleIntent(CustomizationIntent.HideDialog) }
-        )
+    when (val dialog = state.dialog) {
+        is CustomizationDialog.SelectDialog -> {
+            FluxOptionsDialog(
+                state = dialog.state,
+                onValidate = { viewModel.handleIntent(it) },
+                onDismiss = { viewModel.handleIntent(CustomizationIntent.HideDialog) }
+            )
+        }
+        CustomizationDialog.ItemsPerRowDialog -> {
+            ItemsPerRowDialog(
+                value = state.itemsPerRow,
+                sendIntent = { viewModel.handleIntent(it) }
+            )
+        }
+        null -> {}
     }
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomizationContent(
     state: CustomizationUiState,
@@ -83,6 +96,11 @@ fun CustomizationContent(
             Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding()))
 
             CustomizationThemeSection(
+                state = state,
+                sendIntent = sendIntent
+            )
+
+            CustomizationGlobalSection(
                 state = state,
                 sendIntent = sendIntent
             )

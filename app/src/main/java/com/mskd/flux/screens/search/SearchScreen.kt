@@ -2,7 +2,7 @@ package com.mskd.flux.screens.search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -44,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mskd.flux.R
+import com.mskd.flux.data.repository.customization.LocalCustomization
 import com.mskd.flux.mockups.MediaMockups
 import com.mskd.flux.model.artwork.ContentType
 import com.mskd.flux.navigation.Route
@@ -52,9 +54,11 @@ import com.mskd.flux.navigation.Route.Show
 import com.mskd.flux.ui.component.global.FluxScaffold
 import com.mskd.flux.ui.component.global.Text
 import com.mskd.flux.ui.component.media.MediaItem
-import com.mskd.flux.ui.theme.AppTheme
 import com.mskd.flux.ui.theme.Ui
+import com.mskd.flux.utils.AppThemePreview
 import com.mskd.flux.utils.FluxPreview
+import com.mskd.flux.utils.itemWidthFor
+import com.mskd.flux.utils.rememberScreenDimensions
 
 @Composable
 fun SearchScreen(
@@ -85,6 +89,7 @@ fun SearchScreen(
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchContent(
     state: SearchUIState,
@@ -93,6 +98,10 @@ fun SearchContent(
 
     val focusRequester = remember { FocusRequester() }
     var focusRequested by rememberSaveable { mutableStateOf(false) }
+    val screenDimensions = rememberScreenDimensions()
+    val isLargeScreen = screenDimensions.isLarge
+    val columns = if (isLargeScreen) 5 else LocalCustomization.current.itemsPerRow
+    val itemWidth = itemWidthFor(columns = columns)
 
     LaunchedEffect(Unit) {
         if (state.autoKeyboard && !focusRequested) {
@@ -110,17 +119,17 @@ fun SearchContent(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
-            columns = GridCells.Fixed(3),
+            columns = GridCells.Fixed(columns),
             horizontalArrangement = Arrangement.spacedBy(Ui.Space.SMALL),
             verticalArrangement = Arrangement.spacedBy(Ui.Space.SMALL),
             contentPadding = PaddingValues(horizontal = Ui.Space.MEDIUM)
         ) {
 
-            item(span = { GridItemSpan(3) }) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding()))
             }
 
-            item(span = { GridItemSpan(3) }) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
 
                 TextField(
                     modifier = Modifier
@@ -149,7 +158,7 @@ fun SearchContent(
 
             }
 
-            item(span = { GridItemSpan(3) }) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
 
                 SearchTypeFilters(
                     selectedType = state.contentType,
@@ -163,7 +172,7 @@ fun SearchContent(
                 key = { it.id }
             ) { artwork ->
 
-                BoxWithConstraints(
+                Box(
                     modifier = Modifier
                         .animateItem()
                         .fillMaxWidth(),
@@ -172,8 +181,8 @@ fun SearchContent(
 
                     MediaItem(
                         modifier = Modifier
-                            .width(maxWidth)
-                            .aspectRatio(2f/3f),
+                            .width(itemWidth)
+                            .aspectRatio(Ui.Dimension.ITEM_RATIO),
                         path = artwork.imagePath,
                         hd = false,
                         description = artwork.title,
@@ -185,7 +194,7 @@ fun SearchContent(
 
             }
 
-            item(span = { GridItemSpan(3) }) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
             }
 
@@ -250,10 +259,10 @@ fun SearchTypeFilters(
 @FluxPreview
 @Composable
 fun SearchContent_Preview() {
-    AppTheme {
+    AppThemePreview {
         SearchContent(
             state = SearchUIState(
-                searchWord = "preview",
+                searchWord = "",
                 artworks = MediaMockups.artworks
             ),
             sendIntent = {}
