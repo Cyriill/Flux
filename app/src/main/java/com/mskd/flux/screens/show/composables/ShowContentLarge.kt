@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -57,9 +56,9 @@ fun ShowContentLarge(
         LazyVerticalGrid(
             modifier = Modifier.weight(.5f),
             columns = GridCells.Fixed(3),
-            horizontalArrangement = Arrangement.spacedBy(Ui.Space.SMALL),
-            verticalArrangement = Arrangement.spacedBy(Ui.Space.SMALL),
-            contentPadding = PaddingValues(horizontal = Ui.Space.MEDIUM)
+            horizontalArrangement = Arrangement.spacedBy(Ui.Space.small),
+            verticalArrangement = Arrangement.spacedBy(Ui.Space.small),
+            contentPadding = PaddingValues(horizontal = Ui.Space.medium)
         ) {
 
             item(span = { GridItemSpan(maxLineSpan) }) {
@@ -70,7 +69,7 @@ fun ShowContentLarge(
 
                 Text.Display.Small(
                     modifier = Modifier
-                        .padding(Ui.Space.MEDIUM)
+                        .padding(Ui.Space.medium)
                         .wrapContentWidth(),
                     text = fullShow.artwork.title,
                     color = MaterialTheme.colorScheme.onBackground,
@@ -80,13 +79,13 @@ fun ShowContentLarge(
             }
 
             item(span = { GridItemSpan(maxLineSpan) }) {
-                Spacer(modifier = Modifier.height(Ui.Space.LARGE))
+                Spacer(modifier = Modifier.height(Ui.Space.large))
             }
 
             item(span = { GridItemSpan(maxLineSpan) }) {
 
                 OverviewItem(
-                    modifier = Modifier.padding(horizontal = Ui.Space.MEDIUM),
+                    modifier = Modifier.padding(horizontal = Ui.Space.medium),
                     title = stringResource(R.string.summary),
                     description = fullShow.artwork.description.ifEmpty { stringResource(R.string.no_summary) },
                 )
@@ -94,7 +93,7 @@ fun ShowContentLarge(
             }
 
             item(span = { GridItemSpan(maxLineSpan) }) {
-                Spacer(modifier = Modifier.height(Ui.Space.LARGE))
+                Spacer(modifier = Modifier.height(Ui.Space.large))
             }
 
             item(span = { GridItemSpan(maxLineSpan) }) {
@@ -102,7 +101,7 @@ fun ShowContentLarge(
                 Text.Title.Large(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = Ui.Space.MEDIUM),
+                        .padding(horizontal = Ui.Space.medium),
                     text = stringResource(R.string.seasons),
                     emphasized = true,
                     color = MaterialTheme.colorScheme.onBackground
@@ -111,7 +110,7 @@ fun ShowContentLarge(
             }
 
             item(span = { GridItemSpan(maxLineSpan) }) {
-                Spacer(modifier = Modifier.height(Ui.Space.MEDIUM))
+                Spacer(modifier = Modifier.height(Ui.Space.medium))
             }
 
             items(
@@ -127,7 +126,7 @@ fun ShowContentLarge(
                 ) {
 
                     SeasonItem(
-                        modifier = Modifier.width(Ui.Dimension.ITEM_WIDTH),
+                        modifier = Modifier.width(Ui.Dimension.itemWidth),
                         season = season,
                         episodes = fullShow.episodes.filter { it.season == season.season },
                         onTap = { sendIntent(ShowIntent.OnSeasonTap(season = season.season, rgb = it))},
