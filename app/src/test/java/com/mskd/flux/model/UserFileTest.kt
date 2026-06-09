@@ -58,6 +58,18 @@ class UserFileTest : FunSpec ({
                 expectedEpisode = 1
             ),
             UserFileTestCases.FileProperties(
+                fileName = "Naruto S01E133.mp4",
+                expectedTitle = "naruto",
+                expectedSeason = 1,
+                expectedEpisode = 133
+            ),
+            UserFileTestCases.FileProperties(
+                fileName = "Naruto S01E1033.mp4",
+                expectedTitle = "naruto",
+                expectedSeason = 1,
+                expectedEpisode = 1033
+            ),
+            UserFileTestCases.FileProperties(
                 fileName = "Naruto_s02e09.mp4",
                 expectedTitle = "naruto",
                 expectedSeason = 2,

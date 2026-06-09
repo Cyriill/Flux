@@ -55,13 +55,17 @@ fun ArtworkDescriptionsPager(
 
         Card(
             modifier = Modifier
-                .padding(horizontal = Ui.Space.MEDIUM)
-                .clickableWithBounce {
-                    when {
-                        currentPage < pageCount - 1 -> currentPage++
-                        currentPage > 0 -> currentPage--
-                    }
-                },
+                .padding(horizontal = Ui.Space.medium)
+                .then(
+            if (pageCount > 1) {
+                        Modifier.clickableWithBounce {
+                            when {
+                                currentPage < pageCount - 1 -> currentPage++
+                                else -> currentPage--
+                            }
+                        }
+                    } else Modifier
+                ),
             shape = MaterialTheme.shapes.large
         ) {
 
