@@ -1,19 +1,53 @@
 package com.mskd.flux.services
 
 import android.app.PendingIntent
+import androidx.annotation.OptIn
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import org.koin.android.scope.AndroidScopeComponent
+import org.koin.core.qualifier.named
+import org.koin.core.scope.Scope
+import org.koin.mp.KoinPlatformTools
 
-@AndroidEntryPoint
-class PlayerService : MediaSessionService() {
+class PlayerService : MediaSessionService(), AndroidScopeComponent {
 
-    @Inject
-    lateinit var player: Player
+    override val scope: Scope by lazy {
+        KoinPlatformTools.defaultContext().get().createScope(
+            scopeId = this.toString(),
+            qualifier = named("PlayerServiceScope")
+        )
+    }
+
+    val player: Player by scope.inject()
 
     private var mediaSession: MediaSession? = null
+
+    private val mediaSessionCallback = object : MediaSession.Callback {
+
+        @OptIn(UnstableApi::class)
+        override fun onConnect(
+            session: MediaSession,
+            controller: MediaSession.ControllerInfo
+        ): MediaSession.ConnectionResult {
+
+            val connectionResult = super.onConnect(session, controller)
+            val availableCommands = connectionResult.availableSessionCommands.buildUpon()
+
+            val playerCommands = connectionResult.availablePlayerCommands.buildUpon()
+                .remove(Player.COMMAND_SEEK_FORWARD)
+                .remove(Player.COMMAND_SEEK_BACK)
+                .remove(Player.COMMAND_SEEK_TO_NEXT)
+                .remove(Player.COMMAND_SEEK_TO_PREVIOUS)
+                .build()
+
+            return MediaSession.ConnectionResult.accept(
+                availableCommands.build(),
+                playerCommands
+            )
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -23,7 +57,9 @@ class PlayerService : MediaSessionService() {
 
         mediaSession = MediaSession.Builder(this, player)
             .setSessionActivity(pendingIntent)
+            .setCallback(mediaSessionCallback)
             .build()
+
     }
 
     override fun onGetSession(p0: MediaSession.ControllerInfo): MediaSession? {
@@ -36,6 +72,7 @@ class PlayerService : MediaSessionService() {
             release()
             mediaSession = null
         }
+        scope.close()
         super.onDestroy()
     }
 }

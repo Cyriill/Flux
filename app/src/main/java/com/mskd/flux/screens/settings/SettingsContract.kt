@@ -12,10 +12,11 @@ data class SettingsUiState(
     val forwardValue: Int = 10,
     val autoKeyboard: Boolean = false,
     val useExternalPlayer: Boolean = false,
+    val pipIsEnabled: Boolean = true,
     val dialogState: FluxOptionsDialogState<*, SettingsIntent>? = null,
     val showSyncDialog: Boolean = false,
     val fullSyncInProgress: Boolean = false,
-    val prefetchImages: Boolean = false,
+    val prefetchHdImages: Boolean = false,
     val prefetchImagesState: ImagesUC.State = ImagesUC.State.Idle
 )
 
@@ -45,7 +46,8 @@ sealed class SettingsIntent {
     data object ProceedFullSync: SettingsIntent()
     data class OnAutoKeyboardCheck(val checked: Boolean): SettingsIntent()
     data class OnExternalPlayerCheck(val checked: Boolean): SettingsIntent()
-    data class OnPrefetchImagesCheck(val checked: Boolean): SettingsIntent()
+    data class OnEnablePipCheck(val checked: Boolean): SettingsIntent()
+    data class OnPrefetchHdImagesCheck(val checked: Boolean): SettingsIntent()
 }
 
 sealed class SettingsEvent {
