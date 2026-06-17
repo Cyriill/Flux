@@ -64,7 +64,7 @@ class SettingsViewModelTest : FunSpec({
             initialState.dialogState shouldBe null
             initialState.showSyncDialog shouldBe false
             initialState.fullSyncInProgress shouldBe false
-            initialState.prefetchImages shouldBe false
+            initialState.prefetchHdImages shouldBe false
         }
     }
 
@@ -302,17 +302,34 @@ class SettingsViewModelTest : FunSpec({
         }
     }
 
+    test("set pip") {
+        viewModel.uiState.test {
+            awaitItem()
+
+            viewModel.handleIntent(SettingsIntent.OnEnablePipCheck(false))
+            dataStoreFlow.value = dataStoreFlow.value.copy(pipIsEnabled = false)
+
+            val state = awaitItem()
+
+            coVerify { settingsRepository.setEnablePip(false) }
+            state.useExternalPlayer shouldBe true
+
+            cancelAndConsumeRemainingEvents()
+
+        }
+    }
+
     test("set prefetch images") {
         viewModel.uiState.test {
             awaitItem()
 
-            viewModel.handleIntent(SettingsIntent.OnPrefetchImagesCheck(true))
-            dataStoreFlow.value = dataStoreFlow.value.copy(prefetchImages = true)
+            viewModel.handleIntent(SettingsIntent.OnPrefetchHdImagesCheck(true))
+            dataStoreFlow.value = dataStoreFlow.value.copy(prefetchHdImages = true)
 
             val state = awaitItem()
 
-            coVerify { settingsRepository.setPrefetchImages(true) }
-            state.prefetchImages shouldBe true
+            coVerify { settingsRepository.setPrefetchHdImages(true) }
+            state.prefetchHdImages shouldBe true
 
             cancelAndConsumeRemainingEvents()
 
@@ -323,7 +340,7 @@ class SettingsViewModelTest : FunSpec({
         viewModel.uiState.test {
             awaitItem()
 
-            viewModel.handleIntent(SettingsIntent.OnPrefetchImagesCheck(true))
+            viewModel.handleIntent(SettingsIntent.OnPrefetchHdImagesCheck(true))
             coVerify { imagesUC.prefetchImages() }
         }
     }
@@ -332,7 +349,7 @@ class SettingsViewModelTest : FunSpec({
         viewModel.uiState.test {
             awaitItem()
 
-            viewModel.handleIntent(SettingsIntent.OnPrefetchImagesCheck(false))
+            viewModel.handleIntent(SettingsIntent.OnPrefetchHdImagesCheck(false))
             coVerify(exactly = 0) { imagesUC.prefetchImages() }
         }
     }

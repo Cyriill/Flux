@@ -12,9 +12,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
-import javax.inject.Inject
 
-class CustomizationRepositoryImpl @Inject constructor(
+class CustomizationRepositoryImpl(
     val customizationDataStore: DataStore<Preferences>
 ) : CustomizationRepository {
 
@@ -22,6 +21,7 @@ class CustomizationRepositoryImpl @Inject constructor(
         val UI_THEME = stringPreferencesKey("ui_theme")
         val COLOR = intPreferencesKey("color")
         val WAVE_PROGRESS = booleanPreferencesKey("wave_progress")
+        val OLD_BLURRED_HEADER = booleanPreferencesKey("old_blurred_header")
         val LARGE_EPISODE_IMAGE = booleanPreferencesKey("large_episode_image")
         val ITEMS_PER_ROW = intPreferencesKey("items_per_row")
     }
@@ -33,6 +33,7 @@ class CustomizationRepositoryImpl @Inject constructor(
             val uiTheme = preferences[Keys.UI_THEME]?.let { Ui.THEME.valueOf(it) } ?: Ui.THEME.SYSTEM
             val color = preferences[Keys.COLOR]
             val waveProgress = preferences[Keys.WAVE_PROGRESS] ?: true
+            val oldBlurredHeader = preferences[Keys.OLD_BLURRED_HEADER] ?: false
             val largeEpisodeImage = preferences[Keys.LARGE_EPISODE_IMAGE] ?: false
             val itemsPerRow = preferences[Keys.ITEMS_PER_ROW] ?: 3
 
@@ -40,6 +41,7 @@ class CustomizationRepositoryImpl @Inject constructor(
                 uiTheme = uiTheme,
                 color = color,
                 waveProgress = waveProgress,
+                oldBlurredHeader = oldBlurredHeader,
                 largeEpisodeImage = largeEpisodeImage,
                 itemsPerRow = itemsPerRow
             )
@@ -63,6 +65,12 @@ class CustomizationRepositoryImpl @Inject constructor(
     override suspend fun setWaveProgress(waveProgress: Boolean) {
         customizationDataStore.edit { preferences ->
             preferences[Keys.WAVE_PROGRESS] = waveProgress
+        }
+    }
+
+    override suspend fun setOldBlurredHeader(blurred: Boolean) {
+        customizationDataStore.edit { preferences ->
+            preferences[Keys.OLD_BLURRED_HEADER] = blurred
         }
     }
 

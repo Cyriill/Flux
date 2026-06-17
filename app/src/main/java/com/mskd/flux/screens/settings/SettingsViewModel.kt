@@ -9,7 +9,6 @@ import com.mskd.flux.ui.component.global.FluxOptionsDialogItem
 import com.mskd.flux.ui.component.global.FluxOptionsDialogState
 import com.mskd.flux.useCases.catalog.CatalogUC
 import com.mskd.flux.useCases.images.ImagesUC
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,10 +19,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Locale
-import javax.inject.Inject
 
-@HiltViewModel
-class SettingsViewModel @Inject constructor(
+class SettingsViewModel(
     application: Application,
     private val settingsRepository: SettingsRepository,
     private val catalogUC: CatalogUC,
@@ -49,11 +46,12 @@ class SettingsViewModel @Inject constructor(
             rewindValue = settings.playerRewindValue,
             forwardValue = settings.playerForwardValue,
             useExternalPlayer = settings.externalPlayer,
+            pipIsEnabled = settings.pipIsEnabled,
             autoKeyboard = settings.autoKeyboard,
             dialogState = dialog,
             showSyncDialog = showSyncDialog,
             fullSyncInProgress = (catalog as? CatalogUC.State.Syncing)?.full == true,
-            prefetchImages = settings.prefetchImages,
+            prefetchHdImages = settings.prefetchHdImages,
             prefetchImagesState = images
         )
     }.stateIn(
@@ -95,7 +93,8 @@ class SettingsViewModel @Inject constructor(
             SettingsIntent.ProceedFullSync -> proceedFullSync()
             is SettingsIntent.OnAutoKeyboardCheck -> onAutoKeyboardCheck(value = intent.checked)
             is SettingsIntent.OnExternalPlayerCheck -> onExternalPlayerCheck(value = intent.checked)
-            is SettingsIntent.OnPrefetchImagesCheck -> onPrefetchImagesCheck(value = intent.checked)
+            is SettingsIntent.OnEnablePipCheck -> onEnablePipCheck(value = intent.checked)
+            is SettingsIntent.OnPrefetchHdImagesCheck -> onPrefetchImagesCheck(value = intent.checked)
         }
     }
 
@@ -185,6 +184,10 @@ class SettingsViewModel @Inject constructor(
         settingsRepository.setExternalPlayer(value)
     }
 
+    private suspend fun onEnablePipCheck(value: Boolean) {
+        settingsRepository.setEnablePip(value)
+    }
+
     private suspend fun onAutoKeyboardCheck(value: Boolean) {
         settingsRepository.setAutoKeyboard(value)
     }
@@ -199,7 +202,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     private suspend fun onPrefetchImagesCheck(value: Boolean) {
-        settingsRepository.setPrefetchImages(value)
+        settingsRepository.setPrefetchHdImages(value)
 
         if (value)
             imagesUC.prefetchImages()

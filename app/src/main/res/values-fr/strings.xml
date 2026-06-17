@@ -4,7 +4,7 @@
     <string name="movies">Films</string>
     <string name="shows">Séries</string>
     <string name="select_season">Sélectionnez une saison</string>
-    <string name="season_and_episode">Saison %1$d - épisode %2$d</string>
+    <string name="season_and_episode">Saison %1$d - Épisode %2$d</string>
     <string name="season">Saison %1$d</string>
     <string name="episode">Épisode %1$d</string>
     <string name="play">Lire</string>
@@ -59,7 +59,7 @@
     <string name="how_it_works">Comment fonctionne cette application ?</string>
     <string name="how_it_works_desc">Cette application va scanner vos fichiers vidéo de plus de 5 minutes et en extraire des informations à partir du nom du fichier (titre, saison, épisode, année). Ensuite, l\'API de TMDB est utilisée pour récupérer des informations supplémentaires comme le synopsis, la note, le genre, etc.</string>
     <string name="which_technologies">Quelles sont les technologies utilisées ?</string>
-    <string name="which_technologies_desc">Cette application est entièrement développée en Kotlin avec Jetpack Compose. J\'utilise Room pour la base de données, Retrofit pour les appels réseau et Hilt pour les injections de dépendances. Hors application, j\'utilise également GitHub. Pour ce qui est de l\'UI/UX, j\'utilise Material 3 et j\'ai fait ce que j\'ai pu. C\'est pas si moche, non ?</string>
+    <string name="which_technologies_desc">Cette application est entièrement développée en Kotlin avec Jetpack Compose. J\'utilise Room pour la base de données, Ktor pour les appels réseau et Koin pour les injections de dépendances. Hors application, j\'utilise également GitHub. Pour ce qui est de l\'UI/UX, j\'utilise Material 3 et j\'ai fait ce que j\'ai pu. C\'est pas si moche, non ?</string>
     <string name="how_to_suggest">Comment me contacter ou suggérer des améliorations ?</string>
     <string name="how_to_suggest_desc">Si c\'est un avis positif, vous pouvez me contacter par %1$s! Sinon, faites la même chose ou directement sur %2$s, mais avec autant de gentillesse que si c\'était positif.</string>
     <string name="what_is_next">Et la suite ?</string>
@@ -118,7 +118,7 @@
     <string name="information_language">Langage des informations</string>
     <string name="sync_in_progress">Synchronisation en cours…</string>
     <string name="by_default">Par défaut</string>
-    <string name="cache_images">Pré-charger les images</string>
+    <string name="cache_images">Pré-charger les images en HD</string>
     <string name="images_cached">Images téléchargées</string>
     <string name="caching_images_in_progress">Téléchargement des images en cours (%1$d%%)</string>
     <string name="cache_images_desc">Pré-télécharge les images pour une utilisation hors-ligne</string>
@@ -147,4 +147,6 @@
     <string name="items_per_row">Items par ligne</string>
     <string name="items_per_row_desc">Nombre d\'items par ligne (accueil, écran de recherche, saisons…)</string>
     <string name="items">%1$d items</string>
+    <string name="picture_in_picture">Activer le mode Picture-in-Picture</string>
+    <string name="old_blurred_header">Ancienne entête floutée</string>
 </resources>

@@ -41,15 +41,14 @@ import com.mskd.flux.ui.theme.createColorScheme
 import com.mskd.flux.utils.extensions.popScreen
 import com.mskd.flux.utils.notificationsPermissionState
 import com.mskd.flux.utils.storagePermissionState
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    @Inject lateinit var viewModel: MainViewModel
+    val viewModel: MainViewModel by inject()
+    val connectivityRepository: ConnectivityRepository by inject()
 
-    @Inject lateinit var connectivityRepository: ConnectivityRepository
+    private var onUserLeaveHintCallback: (() -> Unit)? = null
 
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -192,6 +191,18 @@ class MainActivity : ComponentActivity() {
 
         }
 
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+
+        if (viewModel.settings.value.pipIsEnabled)
+            onUserLeaveHintCallback?.invoke()
+
+    }
+
+    fun setOnUserLeaveHintCallback(callback: (() -> Unit)?) {
+        onUserLeaveHintCallback = callback
     }
 
 }

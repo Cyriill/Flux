@@ -5,7 +5,7 @@
     <string name="movies">Movies</string>
     <string name="shows">Shows</string>
     <string name="select_season">Select a season</string>
-    <string name="season_and_episode">Season %1$d - episode %2$d</string>
+    <string name="season_and_episode">Season %1$d - Episode %2$d</string>
     <string name="season">Season %1$d</string>
     <string name="episode">Episode %1$d</string>
     <string name="play">Play</string>
@@ -13,7 +13,7 @@
     <string name="mark_as_watched">Mark as watched</string>
     <string name="mark_as_not_watched">Mark as not watched</string>
     <string name="mark_previous_episodes_as_watched">Do you want to mark previous episodes as watched?</string>
-    <string name="oups_an_error_occured">Oops, an error occured…</string>
+    <string name="oups_an_error_occured">Oops, an error occurred…</string>
     <string name="release_date">Release date : %1$s</string>
     <string name="duration">Duration : %1$s</string>
     <string name="summary">Summary</string>
@@ -63,7 +63,7 @@
     <string name="how_it_works">How does this app work?</string>
     <string name="how_it_works_desc">This app will scan your video files longer than 5 minutes and extract information from the file name (title, season, episode, year). Then, the TMDB API is used to fetch additional information like the synopsis, rating, genre, etc.</string>
     <string name="which_technologies">What technologies are used?</string>
-    <string name="which_technologies_desc">This app is entirely developed in Kotlin with Jetpack Compose. I use Room for the database, Retrofit for network calls, and Hilt for dependency injection. I use also GitHub. As for the UI/UX, I use Material 3, and I did my best. Not too shabby, right?</string>
+    <string name="which_technologies_desc">This app is entirely developed in Kotlin with Jetpack Compose. I use Room for the database, Ktor for network calls, and Koin for dependency injection. I use also GitHub. As for the UI/UX, I use Material 3, and I did my best. Not too shabby, right?</string>
     <string name="how_to_suggest">How to contact me or suggest improvements?</string>
     <string name="how_to_suggest_desc">If it\'s positive feedback, you can contact me by %1$s! Otherwise, do the same thing or directly on %2$s, but with as much kindness as if it were positive.</string>
     <string name="mail" translatable="false">mail</string>
@@ -127,7 +127,7 @@
     <string name="information_language">Information language</string>
     <string name="sync_in_progress">Synchronization in progress…</string>
     <string name="by_default">Default</string>
-    <string name="cache_images">Caches Images</string>
+    <string name="cache_images">Caches HD Images</string>
     <string name="images_cached">Images Cached</string>
     <string name="caching_images_in_progress">Caching images… %1$d%%</string>
     <string name="cache_images_desc">Download images for offline use</string>
@@ -152,8 +152,10 @@
     </plurals>
     <string name="read_more">Read more</string>
     <string name="read_less">Read less</string>
-    <string name="large_episode_image">Large image for the episodes</string>
+    <string name="large_episode_image">Large image for episodes</string>
     <string name="items_per_row">Items per row</string>
     <string name="items_per_row_desc">Number of items per row (home, search, seasons…)</string>
     <string name="items">%1$d items</string>
+    <string name="picture_in_picture">Enable Picture-in-Picture</string>
+    <string name="old_blurred_header">Old blurred header</string>
 </resources>

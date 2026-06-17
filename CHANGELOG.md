@@ -1,7 +1,7 @@
-## Version 1.4.3
+## Version 1.5.0
 
-- UI: Season name and episodes count
-- UI: Animation for ArtworkDescriptionsPager with one page
-- UI: Item corner shape consistency
-- FIX: Last watched carousel image
-- FIX: Retrieve episodes above 99 
+- FEATURE: Picture-in-Picture
+- FEATURE: Caching HD images option
+- FEATURE: Remove duration filter when retrieve files
+- UI: Add old blurred header option
+- CORE: Use of KMP libraries (Koin, Ktor, Kotlin-serialization) 
