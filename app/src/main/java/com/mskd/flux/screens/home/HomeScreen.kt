@@ -1,8 +1,11 @@
 package com.mskd.flux.screens.home
 
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -120,41 +123,50 @@ fun HomeScreen(
         sendIntent = viewModel::handleIntent
     )
 
-    Crossfade(
+    AnimatedContent(
         modifier = Modifier.fillMaxSize(),
-        targetState = uiState.screenState::class,
-        label = "CatalogAnimation"
-    ) { it ->
+        targetState = uiState.state,
+        label = "PlayerScreenState",
+        transitionSpec = { fadeIn() togetherWith fadeOut() },
+        contentKey = { state ->
+            when (state) {
+                HomeState.Error -> "error"
+                is HomeState.Loading -> "loading"
+                is HomeState.Content -> "content"
+            }
+        }
+    ) { state ->
 
-        when (it) {
+        when (state) {
 
-            HomeUiState.State.Loading::class -> {
-                val progress = (uiState.screenState as? HomeUiState.State.Loading)?.progress
+            is HomeState.Loading -> {
                 LoadingScreen(
                     text = stringResource(R.string.sync_in_progress),
-                    progress = { progress ?: 1f }
+                    progress = { state.progress }
                 )
             }
 
-            else -> {
+            HomeState.Error -> {
+                HomeEmpty(sendIntent = viewModel::handleIntent)
+            }
 
-                if (uiState.artworks.isEmpty()) {
+            is HomeState.Content -> {
+
+                if (state.artworks.isEmpty()) {
 
                     HomeEmpty(sendIntent = viewModel::handleIntent)
 
                 } else {
 
                     HomeContent(
-                        artworks = uiState.artworks,
-                        lastWatchedIds = uiState.lastWatchedMediaIds,
-                        isRefreshing = uiState.isRefreshing,
+                        artworks = state.artworks,
+                        lastWatchedIds = state.lastWatchedMediaIds,
+                        isRefreshing = state.isRefreshing,
                         snackbarHostState = snackbarHostState,
                         sendIntent = viewModel::handleIntent
                     )
 
                 }
-
-
 
             }
 
@@ -267,7 +279,7 @@ fun HomeContent(
 
                     item {
                         MediaCategory(
-                            name = stringResource(id = ContentType.SHOW.stringResource),
+                            name = stringResource(id = R.string.movies),
                             category = ContentType.SHOW,
                             artworks = artworks.filter { it.type == ContentType.SHOW && !it.isUnknown },
                             sendIntent = sendIntent
@@ -276,7 +288,7 @@ fun HomeContent(
 
                     item {
                         MediaCategory(
-                            name = stringResource(id = ContentType.MOVIE.stringResource),
+                            name = stringResource(id = R.string.shows),
                             category = ContentType.MOVIE,
                             artworks = artworks.filter { it.type == ContentType.MOVIE && !it.isUnknown },
                             sendIntent = sendIntent
@@ -505,7 +517,7 @@ fun MediaCategory(
 
     val screenDimensions = rememberScreenDimensions()
     val columns = if (screenDimensions.isLarge) 5 else LocalCustomization.current.itemsPerRow
-    val itemWidth = itemWidthFor(columns = columns)
+    val itemWidth = itemWidthFor(screenWidthDp = screenDimensions.widthDp, columns = columns)
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -551,7 +563,8 @@ fun MediaCategory(
 @Composable
 fun UnknownCategory(sendIntent: (HomeIntent) -> Unit) {
 
-    val itemWidth = itemWidthFor(columns = LocalCustomization.current.itemsPerRow)
+    val screenDimensions = rememberScreenDimensions()
+    val itemWidth = itemWidthFor(screenWidthDp = screenDimensions.widthDp, columns = LocalCustomization.current.itemsPerRow)
     val foregroundPainter = rememberVectorPainter(ImageVector.vectorResource(R.drawable.ic_launcher_foreground))
 
     Column(
