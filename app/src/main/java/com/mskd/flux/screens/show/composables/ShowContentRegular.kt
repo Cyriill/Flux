@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,6 +26,7 @@ import com.mskd.flux.data.repository.customization.LocalCustomization
 import com.mskd.flux.mockups.MediaMockups
 import com.mskd.flux.model.artwork.FullArtwork
 import com.mskd.flux.screens.artwork.composables.common.ArtworkImage
+import com.mskd.flux.screens.artwork.composables.common.ArtworkImageFull
 import com.mskd.flux.screens.show.ShowIntent
 import com.mskd.flux.ui.component.global.Text
 import com.mskd.flux.ui.component.media.OverviewItem
@@ -32,6 +34,7 @@ import com.mskd.flux.ui.theme.AppTheme
 import com.mskd.flux.ui.theme.Ui
 import com.mskd.flux.utils.PortraitPreview
 import com.mskd.flux.utils.itemWidthFor
+import com.mskd.flux.utils.rememberScreenDimensions
 
 @Composable
 fun ShowContentRegular(
@@ -40,8 +43,9 @@ fun ShowContentRegular(
     sendIntent: (ShowIntent) -> Unit
 ) {
 
+    val screenDimensions = rememberScreenDimensions()
     val columns = LocalCustomization.current.itemsPerRow
-    val itemWidth = itemWidthFor(columns = columns)
+    val itemWidth = itemWidthFor(screenWidthDp = screenDimensions.widthDp, columns = columns)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -54,7 +58,7 @@ fun ShowContentRegular(
 
                 val (image, title) = createRefs()
 
-                ArtworkImage(
+                ArtworkImageFull(
                     modifier = Modifier
                         .constrainAs(image) {
                             start.linkTo(parent.start)
@@ -67,7 +71,7 @@ fun ShowContentRegular(
                     fullArtwork = fullShow,
                 )
 
-                Text.Display.Small(
+                Text.Adaptive(
                     modifier = Modifier
                         .constrainAs(title) {
                             start.linkTo(parent.start,Ui.Space.medium)
@@ -78,7 +82,12 @@ fun ShowContentRegular(
                         },
                     text = fullShow.artwork.title,
                     color = MaterialTheme.colorScheme.onBackground,
-                    emphasized = true
+                    style = MaterialTheme.typography.displayMediumEmphasized,
+                    maxLines = 3,
+                    autoSize = TextAutoSize.StepBased(
+                        minFontSize = MaterialTheme.typography.titleSmallEmphasized.fontSize,
+                        maxFontSize = MaterialTheme.typography.displayMediumEmphasized.fontSize,
+                    )
                 )
 
             }
