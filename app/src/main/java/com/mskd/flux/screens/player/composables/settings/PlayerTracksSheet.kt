@@ -24,15 +24,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
-import com.mskd.flux.R
 import com.mskd.flux.mockups.PlayerMockups
-import com.mskd.flux.screens.player.PlayerIntent
-import com.mskd.flux.screens.player.PlayerTrack
+import com.mskd.flux.model.player.PlayerTrack
+import com.mskd.flux.screen.player.PlayerIntent
 import com.mskd.flux.ui.component.global.Text
-import com.mskd.flux.ui.theme.AppTheme
-import com.mskd.flux.ui.theme.Ui
+import com.mskd.flux.ui.theme.FluxTheme
+import com.mskd.flux.ui.theme.FluxUI
 import com.mskd.flux.utils.FluxPreview
+import flux.shared.generated.resources.Res
+import flux.shared.generated.resources.audio_tracks
+import flux.shared.generated.resources.by_default
+import flux.shared.generated.resources.subtitles
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +49,7 @@ fun PlayerTracksSheet(
 
     val selectedTrack = if (type == PlayerTrack.Type.AUDIO) selectedAudio else selectedSubtitles
 
-    val title = stringResource(if (type == PlayerTrack.Type.AUDIO) R.string.audio_tracks else R.string.subtitles)
+    val title = stringResource(if (type == PlayerTrack.Type.AUDIO) Res.string.audio_tracks else Res.string.subtitles)
     Text.Headline.Small(text = title)
 
     BasicAlertDialog(
@@ -66,7 +69,7 @@ fun PlayerTracksSheet(
 
                 stickyHeader {
 
-                    val title = stringResource(if (type == PlayerTrack.Type.AUDIO) R.string.audio_tracks else R.string.subtitles)
+                    val title = stringResource(if (type == PlayerTrack.Type.AUDIO) Res.string.audio_tracks else Res.string.subtitles)
 
                     Column(
                         modifier = Modifier
@@ -77,7 +80,7 @@ fun PlayerTracksSheet(
                         Text.Headline.Small(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = Ui.Space.large, start = Ui.Space.medium, end = Ui.Space.medium, bottom = Ui.Space.medium),
+                                .padding(top = FluxUI.Space.large, start = FluxUI.Space.medium, end = FluxUI.Space.medium, bottom = FluxUI.Space.medium),
                             text = title,
                         )
 
@@ -90,7 +93,7 @@ fun PlayerTracksSheet(
                 itemsIndexed(tracks.filter { it.type == type }) { index, track ->
 
                     if (index != 0)
-                        HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(horizontal = Ui.Space.medium))
+                        HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(horizontal = FluxUI.Space.medium))
 
                     Row(
                         modifier = Modifier
@@ -99,12 +102,12 @@ fun PlayerTracksSheet(
                                 sendIntent(PlayerIntent.SelectTrack(track = track))
                                 sendIntent(PlayerIntent.ShowSettings(sheet = null))
                             }
-                            .padding(horizontal = Ui.Space.medium, vertical = Ui.Space.medium),
+                            .padding(horizontal = FluxUI.Space.medium, vertical = FluxUI.Space.medium),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
 
-                        Text.Label.Large(text = track.label.ifBlank { stringResource(R.string.by_default) })
+                        Text.Label.Large(text = track.label.ifBlank { stringResource(Res.string.by_default) })
 
                         if (track == selectedTrack) {
                             Icon(
@@ -127,7 +130,7 @@ fun PlayerTracksSheet(
 @FluxPreview
 @Composable
 fun PlayerTracksSheet_Preview() {
-    AppTheme {
+    FluxTheme {
         PlayerTracksSheet(
             tracks = PlayerMockups.tracks,
             selectedAudio = PlayerMockups.Audio.japanese,

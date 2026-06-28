@@ -6,15 +6,12 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import com.mskd.flux.R
 import com.mskd.flux.mockups.MediaMockups
 import com.mskd.flux.model.Status
 import com.mskd.flux.model.artwork.Episode
@@ -23,10 +20,14 @@ import com.mskd.flux.model.artwork.Media
 import com.mskd.flux.ui.component.media.EpisodesDetails
 import com.mskd.flux.ui.component.media.MediaDetailsHorizontal
 import com.mskd.flux.ui.component.media.OverviewItem
-import com.mskd.flux.ui.theme.AppTheme
-import com.mskd.flux.ui.theme.Ui
+import com.mskd.flux.ui.theme.FluxTheme
+import com.mskd.flux.ui.theme.FluxUI
 import com.mskd.flux.utils.FluxPreview
 import com.mskd.flux.utils.extensions.clickableWithBounce
+import flux.shared.generated.resources.Res
+import flux.shared.generated.resources.no_summary
+import flux.shared.generated.resources.summary
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ArtworkDescriptionsPager(
@@ -55,7 +56,7 @@ fun ArtworkDescriptionsPager(
 
         Card(
             modifier = Modifier
-                .padding(horizontal = Ui.Space.medium)
+                .padding(horizontal = FluxUI.Space.medium)
                 .then(
             if (pageCount > 1) {
                         Modifier.clickableWithBounce {
@@ -66,7 +67,7 @@ fun ArtworkDescriptionsPager(
                         }
                     } else Modifier
                 ),
-            shape = MaterialTheme.shapes.large
+            shape = FluxUI.shapes.corners
         ) {
 
             when (fullArtwork) {
@@ -74,7 +75,7 @@ fun ArtworkDescriptionsPager(
                 is FullArtwork.FullMovie -> {
 
                     OverviewItem(
-                        title = stringResource(R.string.summary),
+                        title = stringResource(Res.string.summary),
                         description = currentMedia.description,
                         subtitle = { MediaDetailsHorizontal(currentMedia) }
                     )
@@ -88,8 +89,8 @@ fun ArtworkDescriptionsPager(
                     if (i > 0 || pageCount == 1) {
 
                         OverviewItem(
-                            title = stringResource(R.string.summary),
-                            description = fullArtwork.artwork.description.ifEmpty { stringResource(R.string.no_summary) },
+                            title = stringResource(Res.string.summary),
+                            description = fullArtwork.artwork.description.ifEmpty { stringResource(Res.string.no_summary) },
                         )
 
                     } else {
@@ -118,7 +119,7 @@ fun ArtworkDescriptionsPager(
 @FluxPreview
 @Composable
 fun ArtworkDescriptionsPager_Movie_Preview() {
-    AppTheme {
+    FluxTheme {
         ArtworkDescriptionsPager(
             fullArtwork = MediaMockups.fullMovie,
             currentMedia = MediaMockups.fullMovie.movie
@@ -129,7 +130,7 @@ fun ArtworkDescriptionsPager_Movie_Preview() {
 @FluxPreview
 @Composable
 fun ArtworkDescriptionsPager_Show_Preview() {
-    AppTheme {
+    FluxTheme {
         ArtworkDescriptionsPager(
             fullArtwork = MediaMockups.fullShow.copy(episodes = MediaMockups.episodesWithStatus),
             currentMedia = MediaMockups.episode1.copy(status = Status.IS_WATCHING)

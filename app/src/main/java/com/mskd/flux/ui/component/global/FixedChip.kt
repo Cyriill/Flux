@@ -10,11 +10,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.mskd.flux.R
-import com.mskd.flux.ui.theme.AppTheme
-import com.mskd.flux.ui.theme.Ui
+import com.mskd.flux.ui.theme.FluxTheme
+import com.mskd.flux.ui.theme.FluxUI
 import com.mskd.flux.utils.FluxPreview
 
 @Composable
@@ -28,7 +26,7 @@ fun FixedChip(
             .clip(MaterialTheme.shapes.small)
             .height(32.dp)
             .background(backgroundColor)
-            .padding(horizontal = Ui.Space.medium),
+            .padding(horizontal = FluxUI.Space.medium),
         contentAlignment = Alignment.Center
     ) {
         Text.Label.Medium(
@@ -41,9 +39,9 @@ fun FixedChip(
 @FluxPreview
 @Composable
 fun FixedChip_Preview() {
-    AppTheme {
-        Box(modifier = Modifier.padding(all = Ui.Space.large)) {
-            FixedChip(text = stringResource(id = R.string.app_name))
+    FluxTheme {
+        Box(modifier = Modifier.padding(all = FluxUI.Space.large)) {
+            FixedChip(text = "FixedChip")
         }
     }
 }

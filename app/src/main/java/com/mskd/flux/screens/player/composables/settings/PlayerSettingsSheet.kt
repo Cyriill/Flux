@@ -20,18 +20,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import com.mskd.flux.R
 import com.mskd.flux.mockups.PlayerMockups
-import com.mskd.flux.screens.player.PlayerIntent
-import com.mskd.flux.screens.player.PlayerTrack
-import com.mskd.flux.screens.player.PlayerUiContent
+import com.mskd.flux.model.player.PlayerTrack
+import com.mskd.flux.screen.player.PlayerIntent
+import com.mskd.flux.screen.player.PlayerUiContent
 import com.mskd.flux.ui.component.global.Text
-import com.mskd.flux.ui.theme.AppTheme
-import com.mskd.flux.ui.theme.Ui
+import com.mskd.flux.ui.theme.FluxTheme
+import com.mskd.flux.ui.theme.FluxUI
 import com.mskd.flux.utils.FluxPreview
+import flux.shared.generated.resources.Res
+import flux.shared.generated.resources.by_default
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,7 +45,7 @@ fun PlayerSettingsSheet(
     BasicAlertDialog(
         modifier = Modifier
             .clip(AlertDialogDefaults.shape)
-            .padding(vertical = Ui.Space.large),
+            .padding(vertical = FluxUI.Space.large),
         onDismissRequest = { sendIntent(PlayerIntent.ShowSettings(sheet = null)) },
     ) {
 
@@ -59,18 +60,18 @@ fun PlayerSettingsSheet(
 
                 PlayerSettingsItem(
                     label = "Audio",
-                    value = selectedAudio?.label.orEmpty().ifBlank { stringResource(R.string.by_default) },
+                    value = selectedAudio?.label.orEmpty().ifBlank { stringResource(Res.string.by_default) },
                     onTap = {
                         val intent = PlayerUiContent.SettingsSheet.Tracks(type = PlayerTrack.Type.AUDIO)
                         sendIntent(PlayerIntent.ShowSettings(sheet = intent))
                     }
                 )
 
-                HorizontalDivider(modifier = Modifier.padding(horizontal = Ui.Space.medium))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = FluxUI.Space.medium))
 
                 PlayerSettingsItem(
                     label = "Subtitles",
-                    value = selectedSubtitles?.label.orEmpty().ifBlank { stringResource(R.string.by_default) },
+                    value = selectedSubtitles?.label.orEmpty().ifBlank { stringResource(Res.string.by_default) },
                     onTap = {
                         val intent = PlayerUiContent.SettingsSheet.Tracks(type = PlayerTrack.Type.SUBTITLES)
                         sendIntent(PlayerIntent.ShowSettings(sheet = intent)) }
@@ -95,8 +96,8 @@ fun PlayerSettingsItem(
         modifier = Modifier
             .clickable { onTap() }
             .fillMaxWidth()
-            .padding(all = Ui.Space.medium),
-        horizontalArrangement = Arrangement.spacedBy(Ui.Space.small),
+            .padding(all = FluxUI.Space.medium),
+        horizontalArrangement = Arrangement.spacedBy(FluxUI.Space.small),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
@@ -124,7 +125,7 @@ fun PlayerSettingsItem(
 @FluxPreview
 @Composable
 fun PlayerSettingsSheet_Preview() {
-    AppTheme {
+    FluxTheme {
         PlayerSettingsSheet(
             selectedAudio = PlayerMockups.Audio.japanese,
             selectedSubtitles = PlayerMockups.Subtitles.french,
