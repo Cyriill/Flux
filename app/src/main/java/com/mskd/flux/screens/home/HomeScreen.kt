@@ -532,7 +532,7 @@ fun MediaCategory(
 
     val screenDimensions = rememberScreenDimensions()
     val columns = if (screenDimensions.isLarge) 5 else FluxUI.itemsPerRow.artworks
-    var itemWidth by remember { mutableStateOf(0.dp) }
+    var itemWidth by remember { mutableStateOf(FluxUI.Dimension.itemWidth) }
     val density = LocalDensity.current
 
     Column(
@@ -590,7 +590,7 @@ fun UnknownCategory(sendIntent: (HomeIntent) -> Unit) {
 
     val density = LocalDensity.current
     val columns = FluxUI.itemsPerRow.artworks
-    var itemWidth by remember { mutableStateOf(0.dp) }
+    var itemWidth by remember { mutableStateOf(FluxUI.Dimension.itemWidth) }
     val foregroundPainter = rememberVectorPainter(ImageVector.vectorResource(R.drawable.ic_launcher_foreground))
 
     Column(
