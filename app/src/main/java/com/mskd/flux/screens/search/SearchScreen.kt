@@ -107,7 +107,7 @@ fun SearchContent(
     val screenDimensions = rememberScreenDimensions()
     val isLargeScreen = screenDimensions.isLarge
     val columns = if (isLargeScreen) 5 else FluxUI.itemsPerRow.artworks
-    var itemWidth by remember { mutableStateOf(0.dp) }
+    var itemWidth by remember { mutableStateOf(FluxUI.Dimension.itemWidth) }
     val density = LocalDensity.current
     val focusManager = LocalFocusManager.current
     val lazyGridState = rememberLazyGridState()
@@ -129,16 +129,6 @@ fun SearchContent(
     }
 
     FluxScaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .onSizeChanged { size ->
-                with(density) {
-                    itemWidth = itemWidthFor(
-                        screenWidthDp = size.width.toDp(),
-                        columns = columns
-                    )
-                }
-            },
         title = stringResource(android.R.string.search_go),
         onBackTap = { sendIntent(SearchIntent.OnBackTap) }
     ) { innerPadding ->
@@ -146,6 +136,14 @@ fun SearchContent(
         LazyVerticalGrid(
             modifier = Modifier
                 .fillMaxSize()
+                .onSizeChanged { size ->
+                    with(density) {
+                        itemWidth = itemWidthFor(
+                            screenWidthDp = size.width.toDp(),
+                            columns = columns
+                        )
+                    }
+                }
                 .background(MaterialTheme.colorScheme.background),
             columns = GridCells.Fixed(columns),
             horizontalArrangement = Arrangement.spacedBy(FluxUI.Space.small),

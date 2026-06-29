@@ -51,7 +51,7 @@ fun ShowContentRegular(
 ) {
 
     val columns = FluxUI.itemsPerRow.seasons
-    var itemWidth by remember { mutableStateOf(0.dp) }
+    var itemWidth by remember { mutableStateOf(FluxUI.Dimension.itemWidth) }
     val density = LocalDensity.current
 
     LazyColumn(
