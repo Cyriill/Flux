@@ -20,15 +20,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.mskd.flux.R
 import com.mskd.flux.model.artwork.Episode
 import com.mskd.flux.model.artwork.Media
 import com.mskd.flux.ui.component.global.Text
-import com.mskd.flux.ui.theme.Ui
+import com.mskd.flux.ui.theme.FluxUI
+import flux.shared.generated.resources.Res
+import flux.shared.generated.resources.episode
+import flux.shared.generated.resources.season
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -42,7 +44,7 @@ fun PlayerTopBar(
         modifier = modifier
             .statusBarsPadding()
             .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(Ui.Space.small),
+        horizontalArrangement = Arrangement.spacedBy(FluxUI.Space.small),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
@@ -52,7 +54,7 @@ fun PlayerTopBar(
                 .clickable { onBackTap() }
                 .size(50.dp)
                 .clip(shape = CircleShape)
-                .padding(Ui.Space.extraSmall),
+                .padding(FluxUI.Space.extraSmall),
             contentAlignment = Alignment.Center
         ) {
 
@@ -67,7 +69,7 @@ fun PlayerTopBar(
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(Ui.Space.small)
+            verticalArrangement = Arrangement.spacedBy(FluxUI.Space.small)
         ) {
 
             Text.Body.Large(
@@ -77,8 +79,8 @@ fun PlayerTopBar(
 
             (media as? Episode)?.let { episode ->
 
-                val season = stringResource(R.string.season, episode.season)
-                val number = stringResource(R.string.episode, episode.number)
+                val season = stringResource(Res.string.season, episode.season)
+                val number = stringResource(Res.string.episode, episode.number)
 
                 Text.Body.Small(
                     modifier = Modifier.fillMaxWidth(),

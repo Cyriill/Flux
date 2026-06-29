@@ -54,6 +54,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -65,31 +66,44 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.mskd.flux.R
-import com.mskd.flux.data.repository.customization.LocalCustomization
 import com.mskd.flux.mockups.MediaMockups
 import com.mskd.flux.model.artwork.Artwork
 import com.mskd.flux.model.artwork.ContentType
 import com.mskd.flux.navigation.Route
+import com.mskd.flux.screen.home.HomeEvent
+import com.mskd.flux.screen.home.HomeIntent
+import com.mskd.flux.screen.home.HomeState
+import com.mskd.flux.screen.home.HomeViewModel
 import com.mskd.flux.screens.howTo.HowToNameFiles
 import com.mskd.flux.ui.component.LoadingScreen
 import com.mskd.flux.ui.component.global.FluxButton
 import com.mskd.flux.ui.component.global.Text
 import com.mskd.flux.ui.component.media.MediaItem
-import com.mskd.flux.ui.theme.Ui
+import com.mskd.flux.ui.theme.FluxUI
 import com.mskd.flux.utils.AppThemePreview
 import com.mskd.flux.utils.FluxPreview
 import com.mskd.flux.utils.FluxSnackbar
 import com.mskd.flux.utils.itemWidthFor
 import com.mskd.flux.utils.rememberScreenDimensions
+import flux.shared.generated.resources.Res
+import flux.shared.generated.resources.empty_catalog
+import flux.shared.generated.resources.empty_catalog_desc
+import flux.shared.generated.resources.ic_flux
+import flux.shared.generated.resources.movies
+import flux.shared.generated.resources.other_files
+import flux.shared.generated.resources.refresh
+import flux.shared.generated.resources.shows
+import flux.shared.generated.resources.sync_in_progress
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -140,8 +154,9 @@ fun HomeScreen(
         when (state) {
 
             is HomeState.Loading -> {
+
                 LoadingScreen(
-                    text = stringResource(R.string.sync_in_progress),
+                    text = stringResource(Res.string.sync_in_progress),
                     progress = { state.progress }
                 )
             }
@@ -188,15 +203,15 @@ fun HomeEmpty(sendIntent: (HomeIntent) -> Unit) {
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .statusBarsPadding()
-                .padding(all = Ui.Space.medium)
+                .padding(all = FluxUI.Space.medium)
                 .navigationBarsPadding(),
-            verticalArrangement = Arrangement.spacedBy(Ui.Space.large),
+            verticalArrangement = Arrangement.spacedBy(FluxUI.Space.large),
             horizontalAlignment = Alignment.Start,
         ) {
 
-            Text.Headline.Medium(text = stringResource(R.string.empty_catalog))
+            Text.Headline.Medium(text = stringResource(Res.string.empty_catalog))
 
-            Text.Body.Large(text = stringResource(R.string.empty_catalog_desc))
+            Text.Body.Large(text = stringResource(Res.string.empty_catalog_desc))
 
             HowToNameFiles()
 
@@ -205,7 +220,7 @@ fun HomeEmpty(sendIntent: (HomeIntent) -> Unit) {
                 contentAlignment = Alignment.Center
             ) {
                 FluxButton(
-                    text = stringResource(R.string.refresh),
+                    text = stringResource(Res.string.refresh),
                     onTap = { sendIntent(HomeIntent.SyncCatalog) }
                 )
             }
@@ -267,7 +282,7 @@ fun HomeContent(
                     modifier = Modifier
                         .fillMaxSize()
                         .graphicsLayer { translationY = offsetY },
-                    verticalArrangement = Arrangement.spacedBy(Ui.Space.medium)
+                    verticalArrangement = Arrangement.spacedBy(FluxUI.Space.medium)
                 ) {
 
                     item {
@@ -279,7 +294,7 @@ fun HomeContent(
 
                     item {
                         MediaCategory(
-                            name = stringResource(id = R.string.movies),
+                            name = stringResource(Res.string.shows),
                             category = ContentType.SHOW,
                             artworks = artworks.filter { it.type == ContentType.SHOW && !it.isUnknown },
                             sendIntent = sendIntent
@@ -288,7 +303,7 @@ fun HomeContent(
 
                     item {
                         MediaCategory(
-                            name = stringResource(id = R.string.shows),
+                            name = stringResource(Res.string.movies),
                             category = ContentType.MOVIE,
                             artworks = artworks.filter { it.type == ContentType.MOVIE && !it.isUnknown },
                             sendIntent = sendIntent
@@ -305,7 +320,7 @@ fun HomeContent(
 
                         Spacer(
                             modifier = Modifier
-                                .height(paddingValues.calculateBottomPadding() + Ui.Space.large)
+                                .height(paddingValues.calculateBottomPadding() + FluxUI.Space.large)
                         )
 
                     }
@@ -354,7 +369,7 @@ fun HomeTopButtons(sendIntent: (HomeIntent) -> Unit) {
 
     Row(
         modifier = Modifier
-            .padding(vertical = Ui.Space.small, horizontal = Ui.Space.small)
+            .padding(vertical = FluxUI.Space.small, horizontal = FluxUI.Space.small)
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -370,7 +385,7 @@ fun HomeTopButtons(sendIntent: (HomeIntent) -> Unit) {
 
         Icon(
             modifier = Modifier.size(32.dp),
-            painter = painterResource(R.drawable.ic_flux),
+            painter = painterResource(Res.drawable.ic_flux),
             tint = MaterialTheme.colorScheme.primary,
             contentDescription = "Flux icon"
         )
@@ -403,7 +418,7 @@ fun LastWatchedCarousel(
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(Ui.Space.medium),
+        verticalArrangement = Arrangement.spacedBy(FluxUI.Space.medium),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -433,7 +448,7 @@ fun LastWatchedCarousel(
                 modifier = Modifier.fillMaxWidth(),
                 maxItemWidth = 350.dp,
                 state = carouselState,
-                contentPadding = PaddingValues(horizontal = Ui.Space.medium)
+                contentPadding = PaddingValues(horizontal = FluxUI.Space.medium)
             ) { i ->
 
                 val overview = artworks[i]
@@ -516,19 +531,29 @@ fun MediaCategory(
         return
 
     val screenDimensions = rememberScreenDimensions()
-    val columns = if (screenDimensions.isLarge) 5 else LocalCustomization.current.itemsPerRow
-    val itemWidth = itemWidthFor(screenWidthDp = screenDimensions.widthDp, columns = columns)
+    val columns = if (screenDimensions.isLarge) 5 else FluxUI.itemsPerRow.artworks
+    var itemWidth by remember { mutableStateOf(0.dp) }
+    val density = LocalDensity.current
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(Ui.Space.medium)
+        modifier = Modifier
+            .fillMaxWidth()
+            .onSizeChanged { size ->
+                with(density) {
+                    itemWidth = itemWidthFor(
+                        screenWidthDp = size.width.toDp(),
+                        columns = columns
+                    )
+                }
+            },
+        verticalArrangement = Arrangement.spacedBy(FluxUI.Space.medium)
     ) {
 
         Text.Title.Large(
             modifier = Modifier
                 .clickable { sendIntent(HomeIntent.OnCategoryTap(category)) }
                 .fillMaxWidth()
-                .padding(start = Ui.Space.medium, top = Ui.Space.large),
+                .padding(start = FluxUI.Space.medium, top = FluxUI.Space.large),
             text = name,
             emphasized = true,
             color = MaterialTheme.colorScheme.onBackground
@@ -536,8 +561,8 @@ fun MediaCategory(
 
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = Ui.Space.medium),
-            horizontalArrangement = Arrangement.spacedBy(Ui.Space.small)
+            contentPadding = PaddingValues(horizontal = FluxUI.Space.medium),
+            horizontalArrangement = Arrangement.spacedBy(FluxUI.Space.small)
         ) {
 
             items(artworks, key = { it.id }) {
@@ -545,7 +570,7 @@ fun MediaCategory(
                 MediaItem(
                     modifier = Modifier
                         .width(itemWidth)
-                        .aspectRatio(Ui.Dimension.itemRatio),
+                        .aspectRatio(FluxUI.Dimension.itemRatio),
                     path = it.imagePath,
                     hd = false,
                     onTap = { rgb -> sendIntent(HomeIntent.OnArtworkTap(artwork = it, rgb = rgb)) },
@@ -563,31 +588,41 @@ fun MediaCategory(
 @Composable
 fun UnknownCategory(sendIntent: (HomeIntent) -> Unit) {
 
-    val screenDimensions = rememberScreenDimensions()
-    val itemWidth = itemWidthFor(screenWidthDp = screenDimensions.widthDp, columns = LocalCustomization.current.itemsPerRow)
+    val density = LocalDensity.current
+    val columns = FluxUI.itemsPerRow.artworks
+    var itemWidth by remember { mutableStateOf(0.dp) }
     val foregroundPainter = rememberVectorPainter(ImageVector.vectorResource(R.drawable.ic_launcher_foreground))
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(Ui.Space.medium)
+        modifier = Modifier
+            .fillMaxWidth()
+            .onSizeChanged { size ->
+                with(density) {
+                    itemWidth = itemWidthFor(
+                        screenWidthDp = size.width.toDp(),
+                        columns = columns
+                    )
+                }
+            },
+        verticalArrangement = Arrangement.spacedBy(FluxUI.Space.medium)
     ) {
 
         Text.Title.Large(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = Ui.Space.medium, top = Ui.Space.large),
-            text = stringResource(R.string.other_files),
+                .padding(start = FluxUI.Space.medium, top = FluxUI.Space.large),
+            text = stringResource(Res.string.other_files),
             emphasized = true,
             color = MaterialTheme.colorScheme.onBackground
         )
 
         Box(
             modifier = Modifier
-                .padding(horizontal = Ui.Space.medium)
+                .padding(horizontal = FluxUI.Space.medium)
                 .clickable { sendIntent(HomeIntent.OnArtworkTap(artwork = Artwork.UNKNOWN)) }
-                .clip(MaterialTheme.shapes.small)
+                .clip(FluxUI.shapes.corners)
                 .width(itemWidth)
-                .aspectRatio(Ui.Dimension.itemRatio)
+                .aspectRatio(FluxUI.Dimension.itemRatio)
                 .background(color = MaterialTheme.colorScheme.secondaryContainer),
             contentAlignment = Alignment.Center
         ) {
@@ -596,7 +631,7 @@ fun UnknownCategory(sendIntent: (HomeIntent) -> Unit) {
                 modifier = Modifier.fillMaxSize(),
                 painter = foregroundPainter,
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSecondaryContainer),
-                contentDescription = stringResource(R.string.other_files)
+                contentDescription = stringResource(Res.string.other_files)
             )
 
         }

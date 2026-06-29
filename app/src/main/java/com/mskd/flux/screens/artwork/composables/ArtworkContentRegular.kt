@@ -15,20 +15,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import com.mskd.flux.R
 import com.mskd.flux.mockups.MediaMockups
 import com.mskd.flux.model.artwork.FullArtwork
 import com.mskd.flux.model.artwork.Media
-import com.mskd.flux.screens.artwork.ArtworkIntent
+import com.mskd.flux.screen.artwork.ArtworkIntent
 import com.mskd.flux.screens.artwork.composables.common.ArtworkDescriptionsPager
 import com.mskd.flux.screens.artwork.composables.common.ArtworkHeader
 import com.mskd.flux.ui.component.global.Text
 import com.mskd.flux.ui.component.media.EpisodeDropDownMenu
 import com.mskd.flux.ui.component.media.EpisodeItem
-import com.mskd.flux.ui.theme.AppTheme
-import com.mskd.flux.ui.theme.Ui
+import com.mskd.flux.ui.theme.FluxTheme
+import com.mskd.flux.ui.theme.FluxUI
 import com.mskd.flux.utils.PortraitPreview
+import flux.shared.generated.resources.Res
+import flux.shared.generated.resources.episodes
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,7 +61,7 @@ fun ArtworkContentRegular(
         }
 
         item {
-            Spacer(modifier = Modifier.height(Ui.Space.large))
+            Spacer(modifier = Modifier.height(FluxUI.Space.large))
         }
 
         item {
@@ -74,7 +75,7 @@ fun ArtworkContentRegular(
         }
 
         item {
-            Spacer(modifier = Modifier.height(Ui.Space.large))
+            Spacer(modifier = Modifier.height(FluxUI.Space.large))
         }
 
         (fullArtwork as? FullArtwork.FullShow)?.let { show ->
@@ -85,13 +86,13 @@ fun ArtworkContentRegular(
 
                 item {
 
-                    Column(verticalArrangement = Arrangement.spacedBy(Ui.Space.small)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(FluxUI.Space.small)) {
 
                         Text.Title.Large(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = Ui.Space.medium),
-                            text = stringResource(R.string.episodes),
+                                .padding(horizontal = FluxUI.Space.medium),
+                            text = stringResource(Res.string.episodes),
                             emphasized = true,
                             color = MaterialTheme.colorScheme.onBackground
                         )
@@ -101,7 +102,7 @@ fun ArtworkContentRegular(
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(Ui.Space.medium))
+                    Spacer(modifier = Modifier.height(FluxUI.Space.medium))
                 }
 
                 items(
@@ -132,7 +133,7 @@ fun ArtworkContentRegular(
                         }
                     )
 
-                    Spacer(modifier = Modifier.height(Ui.Space.small))
+                    Spacer(modifier = Modifier.height(FluxUI.Space.small))
 
                 }
 
@@ -151,7 +152,7 @@ fun ArtworkContentRegular(
 @PortraitPreview
 @Composable
 fun ArtworkContentMovie_Preview() {
-    AppTheme {
+    FluxTheme {
         ArtworkContentRegular(
             fullArtwork = MediaMockups.fullMovie,
             selectedMedia = MediaMockups.movie,
@@ -166,7 +167,7 @@ fun ArtworkContentMovie_Preview() {
 @PortraitPreview
 @Composable
 fun ArtworkContentShow_Preview() {
-    AppTheme {
+    FluxTheme {
         ArtworkContentRegular(
             fullArtwork = MediaMockups.fullShow,
             selectedMedia = MediaMockups.episode1,

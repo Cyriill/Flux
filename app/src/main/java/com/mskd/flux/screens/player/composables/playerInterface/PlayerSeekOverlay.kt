@@ -27,15 +27,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.constraintlayout.compose.layoutId
-import com.mskd.flux.R
-import com.mskd.flux.screens.player.PlayerUiContent
+import com.mskd.flux.screen.player.PlayerUiContent
 import com.mskd.flux.ui.component.global.Text
-import com.mskd.flux.ui.theme.AppTheme
-import com.mskd.flux.ui.theme.Ui
+import com.mskd.flux.ui.theme.FluxTheme
+import com.mskd.flux.ui.theme.FluxUI
 import com.mskd.flux.utils.LandscapePreview
+import flux.shared.generated.resources.Res
+import flux.shared.generated.resources.ic_forward
+import flux.shared.generated.resources.ic_rewind
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun PlayerSeekOverlay(
@@ -58,12 +60,12 @@ fun PlayerSeekOverlay(
             label = "Visibility left seek overlay"
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = Ui.Space.large),
-                horizontalArrangement = Arrangement.spacedBy(Ui.Space.medium),
+                modifier = Modifier.padding(horizontal = FluxUI.Space.large),
+                horizontalArrangement = Arrangement.spacedBy(FluxUI.Space.medium),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 PlayerSeekOverlayIcon(
-                    painter = painterResource(R.drawable.ic_rewind),
+                    painter = painterResource(Res.drawable.ic_rewind),
                     offsetX = { fullWidth -> fullWidth },
                     label = "Left arrow"
                 )
@@ -85,13 +87,13 @@ fun PlayerSeekOverlay(
             label = "Visibility right seek overlay"
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = Ui.Space.large),
-                horizontalArrangement = Arrangement.spacedBy(Ui.Space.medium),
+                modifier = Modifier.padding(horizontal = FluxUI.Space.large),
+                horizontalArrangement = Arrangement.spacedBy(FluxUI.Space.medium),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 PlayerSeekOverlayText(amount = overlay?.amount?.let { "+$it" })
                 PlayerSeekOverlayIcon(
-                    painter = painterResource(R.drawable.ic_forward),
+                    painter = painterResource(Res.drawable.ic_forward),
                     offsetX = { fullWidth -> -fullWidth },
                     label = "Right arrow"
                 )
@@ -149,7 +151,7 @@ fun PlayerSeekOverlayText(amount: String?) {
         targetState = amount,
         label = "SeekOverlayText change"
     ) { text ->
-        Box(modifier = Modifier.padding(all = Ui.Space.small)) {
+        Box(modifier = Modifier.padding(all = FluxUI.Space.small)) {
             Text.Adaptive(
                 text = text,
                 style = MaterialTheme.typography.headlineSmall.copy(
@@ -174,7 +176,7 @@ fun PlayerSeekOverlayText(amount: String?) {
 @LandscapePreview
 @Composable
 fun PlayerSeekOverlay_Preview() {
-    AppTheme {
+    FluxTheme {
         Surface(color = Color.Gray) {
             Box(modifier = Modifier.fillMaxSize()) {
                 PlayerSeekOverlay(

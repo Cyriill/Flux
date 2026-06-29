@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,19 +21,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.constraintlayout.compose.Dimension
-import com.mskd.flux.R
 import com.mskd.flux.mockups.MediaMockups
 import com.mskd.flux.model.artwork.FullArtwork
-import com.mskd.flux.screens.artwork.composables.common.ArtworkImage
+import com.mskd.flux.screen.show.ShowIntent
 import com.mskd.flux.screens.artwork.composables.common.ArtworkImageFull
-import com.mskd.flux.screens.show.ShowIntent
 import com.mskd.flux.ui.component.global.Text
 import com.mskd.flux.ui.component.media.OverviewItem
-import com.mskd.flux.ui.theme.AppTheme
-import com.mskd.flux.ui.theme.Ui
+import com.mskd.flux.ui.theme.FluxTheme
+import com.mskd.flux.ui.theme.FluxUI
 import com.mskd.flux.utils.LandscapePreview
+import flux.shared.generated.resources.Res
+import flux.shared.generated.resources.no_summary
+import flux.shared.generated.resources.seasons
+import flux.shared.generated.resources.summary
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ShowContentLarge(
@@ -60,9 +60,9 @@ fun ShowContentLarge(
         LazyVerticalGrid(
             modifier = Modifier.weight(.5f),
             columns = GridCells.Fixed(3),
-            horizontalArrangement = Arrangement.spacedBy(Ui.Space.small),
-            verticalArrangement = Arrangement.spacedBy(Ui.Space.small),
-            contentPadding = PaddingValues(horizontal = Ui.Space.medium)
+            horizontalArrangement = Arrangement.spacedBy(FluxUI.Space.small),
+            verticalArrangement = Arrangement.spacedBy(FluxUI.Space.small),
+            contentPadding = PaddingValues(horizontal = FluxUI.Space.medium)
         ) {
 
             item(span = { GridItemSpan(maxLineSpan) }) {
@@ -73,36 +73,36 @@ fun ShowContentLarge(
 
                 Text.Adaptive(
                     modifier = Modifier
-                        .padding(Ui.Space.medium)
+                        .padding(FluxUI.Space.medium)
                         .wrapContentWidth(),
                     text = fullShow.artwork.title,
                     color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.displayMediumEmphasized,
-                    maxLines = 3,
+                    style = MaterialTheme.typography.displaySmallEmphasized,
+                    maxLines = 2,
                     autoSize = TextAutoSize.StepBased(
                         minFontSize = MaterialTheme.typography.titleSmallEmphasized.fontSize,
-                        maxFontSize = MaterialTheme.typography.displayMediumEmphasized.fontSize,
+                        maxFontSize = MaterialTheme.typography.displaySmallEmphasized.fontSize,
                     )
                 )
 
             }
 
             item(span = { GridItemSpan(maxLineSpan) }) {
-                Spacer(modifier = Modifier.height(Ui.Space.large))
+                Spacer(modifier = Modifier.height(FluxUI.Space.large))
             }
 
             item(span = { GridItemSpan(maxLineSpan) }) {
 
                 OverviewItem(
-                    modifier = Modifier.padding(horizontal = Ui.Space.medium),
-                    title = stringResource(R.string.summary),
-                    description = fullShow.artwork.description.ifEmpty { stringResource(R.string.no_summary) },
+                    modifier = Modifier.padding(horizontal = FluxUI.Space.medium),
+                    title = stringResource(Res.string.summary),
+                    description = fullShow.artwork.description.ifEmpty { stringResource(Res.string.no_summary) },
                 )
 
             }
 
             item(span = { GridItemSpan(maxLineSpan) }) {
-                Spacer(modifier = Modifier.height(Ui.Space.large))
+                Spacer(modifier = Modifier.height(FluxUI.Space.large))
             }
 
             item(span = { GridItemSpan(maxLineSpan) }) {
@@ -110,8 +110,8 @@ fun ShowContentLarge(
                 Text.Title.Large(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = Ui.Space.medium),
-                    text = stringResource(R.string.seasons),
+                        .padding(horizontal = FluxUI.Space.medium),
+                    text = stringResource(Res.string.seasons),
                     emphasized = true,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -119,7 +119,7 @@ fun ShowContentLarge(
             }
 
             item(span = { GridItemSpan(maxLineSpan) }) {
-                Spacer(modifier = Modifier.height(Ui.Space.medium))
+                Spacer(modifier = Modifier.height(FluxUI.Space.medium))
             }
 
             items(
@@ -135,7 +135,7 @@ fun ShowContentLarge(
                 ) {
 
                     SeasonItem(
-                        modifier = Modifier.width(Ui.Dimension.itemWidth),
+                        modifier = Modifier.width(FluxUI.Dimension.itemWidth),
                         season = season,
                         episodes = fullShow.episodes.filter { it.season == season.season },
                         onTap = { sendIntent(ShowIntent.OnSeasonTap(season = season.season, rgb = it))},
@@ -160,7 +160,7 @@ fun ShowContentLarge(
 @LandscapePreview
 @Composable
 fun ShowContentLarge_Preview() {
-    AppTheme {
+    FluxTheme {
         ShowContentLarge(
             fullShow = MediaMockups.fullShow,
             scaffoldInnerPadding = PaddingValues.Zero,

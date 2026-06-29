@@ -18,17 +18,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import com.mskd.flux.R
 import com.mskd.flux.mockups.MediaMockups
 import com.mskd.flux.model.artwork.Episode
 import com.mskd.flux.ui.component.global.ReadMoreButton
 import com.mskd.flux.ui.component.global.Text
-import com.mskd.flux.ui.theme.AppTheme
-import com.mskd.flux.ui.theme.Ui
+import com.mskd.flux.ui.theme.FluxTheme
+import com.mskd.flux.ui.theme.FluxUI
+import flux.shared.generated.resources.Res
+import flux.shared.generated.resources.episode
+import flux.shared.generated.resources.season
+import flux.shared.generated.resources.summary
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun OverviewItem(
@@ -45,10 +48,10 @@ fun OverviewItem(
 
     Column(
         modifier = modifier
-            .clip(MaterialTheme.shapes.large)
+            .clip(FluxUI.shapes.corners)
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .fillMaxWidth()
-            .padding(all = Ui.Space.medium)
+            .padding(all = FluxUI.Space.medium)
             .then(
                 if (hasLaidOut) Modifier.animateContentSize(
                     animationSpec = spring(
@@ -57,12 +60,12 @@ fun OverviewItem(
                     )
                 ) else Modifier
             ),
-        verticalArrangement = Arrangement.spacedBy(Ui.Space.medium)
+        verticalArrangement = Arrangement.spacedBy(FluxUI.Space.medium)
     ) {
 
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(Ui.Space.extraSmall)
+            verticalArrangement = Arrangement.spacedBy(FluxUI.Space.extraSmall)
         ) {
 
             topDetails()
@@ -110,14 +113,14 @@ fun OverviewItem(
 @Composable
 fun EpisodesDetails(episode: Episode) {
 
-    Row(horizontalArrangement = Arrangement.spacedBy(Ui.Space.medium)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(FluxUI.Space.medium)) {
         Text.Label.Medium(
-            text = stringResource(id = R.string.season, episode.season).uppercase(),
+            text = stringResource(Res.string.season, episode.season).uppercase(),
             emphasized = true,
             color = MaterialTheme.colorScheme.primary,
         )
         Text.Label.Medium(
-            text = stringResource(id = R.string.episode, episode.number).uppercase(),
+            text = stringResource(Res.string.episode, episode.number).uppercase(),
             emphasized = true,
             color = MaterialTheme.colorScheme.secondary
         )
@@ -128,9 +131,9 @@ fun EpisodesDetails(episode: Episode) {
 @Preview
 @Composable
 fun OverviewItem_Preview_Movie() {
-    AppTheme {
+    FluxTheme {
         OverviewItem(
-            title = stringResource(R.string.summary),
+            title = stringResource(Res.string.summary),
             description = MediaMockups.movie.description,
             subtitle = { MediaDetailsHorizontal(media = MediaMockups.movie) }
         )
@@ -140,9 +143,9 @@ fun OverviewItem_Preview_Movie() {
 @Preview
 @Composable
 fun OverviewItem_Preview_Season() {
-    AppTheme {
+    FluxTheme {
         OverviewItem(
-            title = stringResource(R.string.summary),
+            title = stringResource(Res.string.summary),
             description = MediaMockups.season1.description,
         )
     }
@@ -151,7 +154,7 @@ fun OverviewItem_Preview_Season() {
 @Preview
 @Composable
 fun OverviewItem_Preview_Episode() {
-    AppTheme {
+    FluxTheme {
         OverviewItem(
             title = MediaMockups.episode1.title,
             description = MediaMockups.episode1.description,

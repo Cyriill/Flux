@@ -43,21 +43,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mskd.flux.R
 import com.mskd.flux.navigation.Route
+import com.mskd.flux.screen.token.TokenEvent
+import com.mskd.flux.screen.token.TokenIntent
+import com.mskd.flux.screen.token.TokenMessage
+import com.mskd.flux.screen.token.TokenUiState
+import com.mskd.flux.screen.token.TokenViewModel
 import com.mskd.flux.ui.component.global.FluxIconButton
 import com.mskd.flux.ui.component.global.FluxScaffold
 import com.mskd.flux.ui.component.global.FluxTextButton
 import com.mskd.flux.ui.component.global.Text
-import com.mskd.flux.ui.theme.AppTheme
-import com.mskd.flux.ui.theme.Ui
+import com.mskd.flux.ui.theme.FluxTheme
+import com.mskd.flux.ui.theme.FluxUI
 import com.mskd.flux.utils.Constants
 import com.mskd.flux.utils.FluxPreview
 import com.mskd.flux.utils.buildLinkedString
+import flux.shared.generated.resources.Res
+import flux.shared.generated.resources.api_token
+import flux.shared.generated.resources.log_in
+import flux.shared.generated.resources.sign_up
+import flux.shared.generated.resources.skip
+import flux.shared.generated.resources.tmdb
+import flux.shared.generated.resources.tmdb_api_token
+import flux.shared.generated.resources.token_desc_1
+import flux.shared.generated.resources.token_desc_2
+import flux.shared.generated.resources.token_desc_3
+import flux.shared.generated.resources.token_error
+import flux.shared.generated.resources.token_input
+import flux.shared.generated.resources.token_tutorial_step_1
+import flux.shared.generated.resources.token_tutorial_step_2
+import flux.shared.generated.resources.token_validated
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -99,18 +118,18 @@ fun TokenScreenContent(
 ) {
 
     FluxScaffold(
-        title = stringResource(R.string.tmdb_api_token),
+        title = stringResource(Res.string.tmdb_api_token),
         onBackTap = if (state.showBackButton) { { sendIntent(TokenIntent.OnBackTap) } } else null,
         floatingActionButton = {
 
             AnimatedVisibility(
                 visible = !state.showBackButton,
-                enter = Ui.Animation.buttonEnter,
-                exit = Ui.Animation.buttonExit
+                enter = FluxUI.Animation.buttonEnter,
+                exit = FluxUI.Animation.buttonExit
             ) {
 
                 FluxTextButton(
-                    stringResource(R.string.skip),
+                    stringResource(Res.string.skip),
                     onTap = { sendIntent(TokenIntent.OnCancelTap) }
                 )
 
@@ -125,9 +144,9 @@ fun TokenScreenContent(
                 .background(MaterialTheme.colorScheme.background)
                 .fillMaxSize()
                 .imePadding()
-                .padding(horizontal = Ui.Space.medium)
+                .padding(horizontal = FluxUI.Space.medium)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(Ui.Space.medium),
+            verticalArrangement = Arrangement.spacedBy(FluxUI.Space.medium),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -146,17 +165,17 @@ fun TokenScreenContent(
                 )
 
                 AnimatedVisibility(
-                    modifier = Modifier.padding(start = Ui.Space.extraSmall, top = Ui.Space.small),
+                    modifier = Modifier.padding(start = FluxUI.Space.extraSmall, top = FluxUI.Space.small),
                     visible = state.message != TokenMessage.None,
                 ) {
 
                     when (state.message) {
                         TokenMessage.Success -> Text.Label.Small(
-                            text = stringResource(R.string.token_validated),
+                            text = stringResource(Res.string.token_validated),
                             color = MaterialTheme.colorScheme.primary
                         )
                         TokenMessage.Error -> Text.Label.Small(
-                            text = stringResource(R.string.token_error),
+                            text = stringResource(Res.string.token_error),
                             color = MaterialTheme.colorScheme.error
                         )
                         TokenMessage.None -> {}
@@ -178,23 +197,23 @@ fun TokenDescription() {
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(Ui.Space.large),
+        verticalArrangement = Arrangement.spacedBy(FluxUI.Space.large),
         horizontalAlignment = Alignment.Start
     ) {
 
         Text.Annotated(
             text = buildLinkedString(
-                template = stringResource(R.string.token_desc_1),
-                stringResource(R.string.tmdb) to Constants.TMDB.WEBSITE
+                template = stringResource(Res.string.token_desc_1),
+                stringResource(Res.string.tmdb) to Constants.TMDB.WEBSITE
             )
         )
 
         Text.Body.Large(
-            text = stringResource(R.string.token_desc_2)
+            text = stringResource(Res.string.token_desc_2)
         )
 
         Text.Body.Large(
-            text = stringResource(R.string.token_desc_3)
+            text = stringResource(Res.string.token_desc_3)
         )
 
     }
@@ -206,7 +225,7 @@ fun TokenTutorial() {
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(Ui.Space.large),
+        verticalArrangement = Arrangement.spacedBy(FluxUI.Space.large),
         horizontalAlignment = Alignment.Start
     ) {
 
@@ -217,9 +236,9 @@ fun TokenTutorial() {
 
             Text.Annotated(
                 text = buildLinkedString(
-                    template = stringResource(R.string.token_tutorial_step_1),
-                    stringResource(R.string.log_in) to Constants.TMDB.LOG_IN,
-                    stringResource(R.string.sign_up) to Constants.TMDB.SIGN_UP,
+                    template = stringResource(Res.string.token_tutorial_step_1),
+                    stringResource(Res.string.log_in) to Constants.TMDB.LOG_IN,
+                    stringResource(Res.string.sign_up) to Constants.TMDB.SIGN_UP,
                 )
             )
 
@@ -231,8 +250,8 @@ fun TokenTutorial() {
 
             Text.Annotated(
                 text = buildLinkedString(
-                    template = stringResource(R.string.token_tutorial_step_2),
-                    stringResource(R.string.api_token) to Constants.TMDB.GET_API_TOKEN,
+                    template = stringResource(Res.string.token_tutorial_step_2),
+                    stringResource(Res.string.api_token) to Constants.TMDB.GET_API_TOKEN,
                 )
             )
 
@@ -258,8 +277,8 @@ fun TokenInput(
     Row(
         modifier = Modifier
             .widthIn(max = 700.dp)
-            .padding(top = Ui.Space.large),
-        horizontalArrangement = Arrangement.spacedBy(Ui.Space.small),
+            .padding(top = FluxUI.Space.large),
+        horizontalArrangement = Arrangement.spacedBy(FluxUI.Space.small),
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextField(
@@ -282,7 +301,7 @@ fun TokenInput(
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent
             ),
-            placeholder = { Text(stringResource(R.string.token_input)) },
+            placeholder = { Text(stringResource(Res.string.token_input)) },
             trailingIcon = {
                 if (token.isNotEmpty()) {
                     IconButton(
@@ -338,7 +357,7 @@ fun TokenInput(
 @FluxPreview
 @Composable
 fun TokenScreen_Preview() {
-    AppTheme {
+    FluxTheme {
         TokenScreenContent(
             state = TokenUiState(
                 token = "azERTyuiOQSdfghJKLmwxCvbn",

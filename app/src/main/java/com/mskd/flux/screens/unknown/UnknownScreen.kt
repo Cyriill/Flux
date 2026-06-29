@@ -25,29 +25,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.mskd.flux.R
 import com.mskd.flux.mockups.MediaMockups
 import com.mskd.flux.model.ScreenState
 import com.mskd.flux.model.artwork.Episode
 import com.mskd.flux.navigation.Route
 import com.mskd.flux.navigation.Route.Player
+import com.mskd.flux.screen.unknown.UnknownEvent
+import com.mskd.flux.screen.unknown.UnknownIntent
+import com.mskd.flux.screen.unknown.UnknownViewModel
 import com.mskd.flux.ui.component.LoadingScreen
 import com.mskd.flux.ui.component.global.ErrorScreen
 import com.mskd.flux.ui.component.global.FluxScaffold
 import com.mskd.flux.ui.component.global.FluxSearchField
 import com.mskd.flux.ui.component.global.Text
 import com.mskd.flux.ui.component.media.EpisodeItem
-import com.mskd.flux.ui.theme.AppTheme
-import com.mskd.flux.ui.theme.Ui
+import com.mskd.flux.ui.theme.FluxTheme
+import com.mskd.flux.ui.theme.FluxUI
 import com.mskd.flux.utils.ExternalPlayer
 import com.mskd.flux.utils.FluxPreview
 import com.mskd.flux.utils.rememberExternalPlayerLauncher
+import flux.shared.generated.resources.Res
+import flux.shared.generated.resources.ic_help
+import flux.shared.generated.resources.no_item
+import flux.shared.generated.resources.other_files
+import flux.shared.generated.resources.oups_an_error_occured
 import kotlinx.coroutines.flow.collectLatest
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -92,7 +99,7 @@ fun UnknownScreen(
             ScreenState.LOADING -> LoadingScreen()
             ScreenState.ERROR -> {
                 ErrorScreen(
-                    message = stringResource(R.string.oups_an_error_occured),
+                    message = stringResource(Res.string.oups_an_error_occured),
                     onBackButtonTap = { viewModel.handleIntent(UnknownIntent.OnBackTap) }
                 )
             }
@@ -130,12 +137,12 @@ fun UnknownScreenContent(
     }
 
     FluxScaffold(
-        title = stringResource(R.string.other_files),
+        title = stringResource(Res.string.other_files),
         onBackTap = { sendIntent(UnknownIntent.OnBackTap) },
         actions = {
             IconButton(onClick = { sendIntent(UnknownIntent.OnInfoTap) }) {
                 Icon(
-                    painter = painterResource(R.drawable.ic_help),
+                    painter = painterResource(Res.drawable.ic_help),
                     contentDescription = "Help icon button"
                 )
             }
@@ -148,7 +155,7 @@ fun UnknownScreenContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background),
-                verticalArrangement = Arrangement.spacedBy(Ui.Space.small),
+                verticalArrangement = Arrangement.spacedBy(FluxUI.Space.small),
                 state = lazyColumnState
             ) {
 
@@ -161,8 +168,8 @@ fun UnknownScreenContent(
                     FluxSearchField(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = Ui.Space.medium)
-                            .padding(bottom = Ui.Space.large),
+                            .padding(horizontal = FluxUI.Space.medium)
+                            .padding(bottom = FluxUI.Space.large),
                         value = searchQuery,
                         onValueChange = { sendIntent(UnknownIntent.DoSearch(it)) },
                     )
@@ -200,7 +207,7 @@ fun UnknownScreenContent(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .fillMaxWidth(),
-                    text = stringResource(R.string.no_item),
+                    text = stringResource(Res.string.no_item),
                     textAlign = TextAlign.Center
                 )
 
@@ -215,7 +222,7 @@ fun UnknownScreenContent(
 @FluxPreview
 @Composable
 fun UnknownScreen_Preview() {
-    AppTheme {
+    FluxTheme {
         UnknownScreenContent(
             medias = MediaMockups.episodesWithStatus,
             searchQuery = "",

@@ -16,25 +16,32 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import com.mskd.flux.R
-import com.mskd.flux.data.repository.customization.LocalCustomization
 import com.mskd.flux.mockups.MediaMockups
 import com.mskd.flux.model.artwork.FullArtwork
-import com.mskd.flux.screens.artwork.composables.common.ArtworkImage
+import com.mskd.flux.screen.show.ShowIntent
 import com.mskd.flux.screens.artwork.composables.common.ArtworkImageFull
-import com.mskd.flux.screens.show.ShowIntent
 import com.mskd.flux.ui.component.global.Text
 import com.mskd.flux.ui.component.media.OverviewItem
-import com.mskd.flux.ui.theme.AppTheme
-import com.mskd.flux.ui.theme.Ui
+import com.mskd.flux.ui.theme.FluxTheme
+import com.mskd.flux.ui.theme.FluxUI
 import com.mskd.flux.utils.PortraitPreview
 import com.mskd.flux.utils.itemWidthFor
-import com.mskd.flux.utils.rememberScreenDimensions
+import flux.shared.generated.resources.Res
+import flux.shared.generated.resources.no_summary
+import flux.shared.generated.resources.seasons
+import flux.shared.generated.resources.summary
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ShowContentRegular(
@@ -43,12 +50,21 @@ fun ShowContentRegular(
     sendIntent: (ShowIntent) -> Unit
 ) {
 
-    val screenDimensions = rememberScreenDimensions()
-    val columns = LocalCustomization.current.itemsPerRow
-    val itemWidth = itemWidthFor(screenWidthDp = screenDimensions.widthDp, columns = columns)
+    val columns = FluxUI.itemsPerRow.seasons
+    var itemWidth by remember { mutableStateOf(0.dp) }
+    val density = LocalDensity.current
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .onSizeChanged { size ->
+                with(density) {
+                    itemWidth = itemWidthFor(
+                        screenWidthDp = size.width.toDp(),
+                        columns = columns
+                    )
+                }
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
@@ -67,26 +83,26 @@ fun ShowContentRegular(
                             width = Dimension.fillToConstraints
                         }
                         .fillMaxWidth()
-                        .aspectRatio(Ui.Images.ratio_6_5),
+                        .aspectRatio(FluxUI.Images.ratio_6_5),
                     fullArtwork = fullShow,
                 )
 
                 Text.Adaptive(
                     modifier = Modifier
                         .constrainAs(title) {
-                            start.linkTo(parent.start,Ui.Space.medium)
-                            end.linkTo(parent.end, Ui.Space.medium)
+                            start.linkTo(parent.start,FluxUI.Space.medium)
+                            end.linkTo(parent.end, FluxUI.Space.medium)
                             top.linkTo(image.bottom)
                             bottom.linkTo(image.bottom)
                             width = Dimension.preferredWrapContent
                         },
                     text = fullShow.artwork.title,
                     color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.displayMediumEmphasized,
-                    maxLines = 3,
+                    style = MaterialTheme.typography.displaySmallEmphasized,
+                    maxLines = 2,
                     autoSize = TextAutoSize.StepBased(
                         minFontSize = MaterialTheme.typography.titleSmallEmphasized.fontSize,
-                        maxFontSize = MaterialTheme.typography.displayMediumEmphasized.fontSize,
+                        maxFontSize = MaterialTheme.typography.displaySmallEmphasized.fontSize,
                     )
                 )
 
@@ -95,34 +111,34 @@ fun ShowContentRegular(
 
         }
 
-        item { Spacer(modifier = Modifier.height(Ui.Space.large)) }
+        item { Spacer(modifier = Modifier.height(FluxUI.Space.large)) }
 
         item {
 
             OverviewItem(
-                modifier = Modifier.padding(horizontal = Ui.Space.medium),
-                title = stringResource(R.string.summary),
-                description = fullShow.artwork.description.ifEmpty { stringResource(R.string.no_summary) },
+                modifier = Modifier.padding(horizontal = FluxUI.Space.medium),
+                title = stringResource(Res.string.summary),
+                description = fullShow.artwork.description.ifEmpty { stringResource(Res.string.no_summary) },
             )
 
         }
 
-        item { Spacer(modifier = Modifier.height(Ui.Space.medium)) }
+        item { Spacer(modifier = Modifier.height(FluxUI.Space.medium)) }
 
         item {
 
             Text.Title.Large(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = Ui.Space.medium),
-                text = stringResource(R.string.seasons),
+                    .padding(horizontal = FluxUI.Space.medium),
+                text = stringResource(Res.string.seasons),
                 emphasized = true,
                 color = MaterialTheme.colorScheme.onBackground
             )
 
         }
 
-        item { Spacer(modifier = Modifier.height(Ui.Space.medium)) }
+        item { Spacer(modifier = Modifier.height(FluxUI.Space.medium)) }
 
         val seasonsChunks = fullShow.seasons.chunked(columns)
 
@@ -134,9 +150,9 @@ fun ShowContentRegular(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = Ui.Space.medium)
-                    .padding(bottom = Ui.Space.medium),
-                horizontalArrangement = Arrangement.spacedBy(Ui.Space.small)
+                    .padding(horizontal = FluxUI.Space.medium)
+                    .padding(bottom = FluxUI.Space.medium),
+                horizontalArrangement = Arrangement.spacedBy(FluxUI.Space.small)
             ) {
 
                 seasons.forEach { season ->
@@ -182,7 +198,7 @@ fun ShowContentRegular(
 @PortraitPreview
 @Composable
 fun ShowContentRegular_Preview() {
-    AppTheme {
+    FluxTheme {
         ShowContentRegular(
             fullShow = MediaMockups.fullShow,
             scaffoldInnerPadding = PaddingValues.Zero,
