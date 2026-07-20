@@ -1,6 +1,6 @@
-## Version 1.5.2
+## Version 1.6.0
 
-- UI: Items shape and count
-- CORE: Player compatibility 
-- CORE: All KMP 
-- FIX: Issue to show buttons in player with back button
+WARNING: This update is pretty sensitive, if there is any issue, feel free to downgrade to 1.5.2 and let me know
+
+- Feature: Users should now select their own folders, instead of using all files from the device
+- Core: Big step toward KMP
