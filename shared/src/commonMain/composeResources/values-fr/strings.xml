@@ -42,12 +42,6 @@
     <string name="how_to_name_files_desc">Pas de panique, c’est très simple ! Pour que vos vidéos soient bien organisées, voici comment nommer vos fichiers :</string>
     <string name="how_to_name_files_movies_desc">Donnez à vos films un nom clair, suivi de l’année si vous le souhaitez. Par exemple :</string>
     <string name="how_to_name_files_show_desc">Pour les épisodes de séries, utilisez un format qui indique la saison et l’épisode. L'année est optionnelle. Par exemple :</string>
-    <string name="show_file_example_1">nom série_s01e02.mkv</string>
-    <string name="show_file_example_2">nom série_s01.e02.mkv</string>
-    <string name="show_file_example_3">nom_série_1x02.mkv</string>
-    <string name="show_file_example_4">nom_série_se1.ep2.mkv</string>
-    <string name="show_file_example_5">nom_série-season1.episode2.mkv</string>
-    <string name="show_file_example_6">nom série (1995)_s01e02.mkv</string>
     <string name="read">lu</string>
     <string name="remaining_time">Il reste %1$s</string>
     <string name="rewatch">Revoir</string>
@@ -97,7 +91,6 @@
     <string name="more_info">Plus d'informations</string>
     <string name="external_player">Lecteur externe</string>
     <string name="watch_on_external_player">Le suivi de progression n'est pas compatible avec tous les lecteurs.nLes notifications sont recommandées.</string>
-    <string name="how_to_advice">Note : Il est conseillé de placer vos fichiers dans les dossiers Movies ou Downloads pour un fonctionnement optimal.</string>
     <string name="stay_informed">Restez informés sur l'évolution de l'application!</string>
     <string name="about_desc">À propos de cette application, à propos de moi, à propos de n'importe quoi</string>
     <string name="support_me_desc">Merci pour votre soutien !</string>
@@ -115,7 +108,7 @@
     <string name="by_default">Par défaut</string>
     <string name="cache_images">Pré-charger les images en HD</string>
     <string name="images_cached">Images téléchargées</string>
-    <string name="caching_images_in_progress">Téléchargement des images en cours (%1$d%%)</string>
+    <string name="caching_images_in_progress">Téléchargement des images en cours (%1$d%)</string>
     <string name="cache_images_desc">Pré-télécharge les images pour une utilisation hors-ligne</string>
     <string name="no_summary">Aucun résumé disponible</string>
     <string name="customization">Personnalisation</string>
@@ -163,4 +156,5 @@
     <string name="dialog_sources_title">Vos dossiers, vos règles !</string>
     <string name="dialog_sources_description">Pour vous offrir plus de contrôle, l'application se concentre désormais sur vos dossiers %1$s et %2$s.\n\nUne vidéo manque à l'appel ? Pas de panique ! Vous pouvez ajouter vos propres dossiers en un clin d'œil depuis les paramètres.</string>
     <string name="content_unavailable">Contenu non disponible</string>
+    <string name="open_in_file_explorer">Ouvrir dans l'explorateur de fichiers</string>
 </resources>

@@ -38,10 +38,8 @@ import com.mskd.flux.ui.theme.FluxTheme
 import com.mskd.flux.ui.theme.FluxUI
 import com.mskd.flux.utils.itemWidthFor
 import flux.shared.generated.resources.Res
-import flux.shared.generated.resources.ic_add_folder
 import flux.shared.generated.resources.ic_flux
 import flux.shared.generated.resources.other_files
-import flux.shared.generated.resources.sources
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -100,7 +98,7 @@ fun CatalogGenericItems(
                 }
             }
 
-            item {
+            /*item {
 
                 CatalogGenericItem(
                     modifier = Modifier.size(48.dp),
@@ -112,7 +110,7 @@ fun CatalogGenericItems(
                     contentDescription = stringResource(Res.string.sources)
                 )
 
-            }
+            }*/
 
         }
 

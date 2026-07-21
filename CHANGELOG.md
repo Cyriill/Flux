@@ -1,6 +1,6 @@
-## Version 1.6.0
+## Version 1.6.1
 
-WARNING: This update is pretty sensitive, if there is any issue, feel free to downgrade to 1.5.2 and let me know
-
-- Feature: Users should now select their own folders, instead of using all files from the device
-- Core: Big step toward KMP
+- Feature: New languages: Spanish, German, Italian, Korean, Japanese
+- Feature: Improved file name compatibility
+- Feature: Access to file explorer from medias
+- Fix: Images sometimes displayed in SD
