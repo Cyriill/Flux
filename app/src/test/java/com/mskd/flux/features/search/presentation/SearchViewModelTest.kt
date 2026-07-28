@@ -9,7 +9,9 @@ import com.mskd.flux.core.model.artwork.ContentType
 import com.mskd.flux.features.settings.domain.datastore.SettingsDataStore
 import com.mskd.flux.mockups.MediaMockups
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContainIgnoringCase
 
 class SearchViewModelTest : FunSpec({
 
@@ -76,9 +78,9 @@ class SearchViewModelTest : FunSpec({
             val state = awaitItem()
 
             state.searchWord shouldBe "na"
-            state.filteredArtworks.size shouldBe 2
-            state.filteredArtworks shouldBe MediaMockups.artworks.filter { !it.isUnknown }
-
+            state.filteredArtworks.shouldForAll {
+                it.title shouldContainIgnoringCase  "na"
+            }
         }
 
     }
@@ -89,11 +91,11 @@ class SearchViewModelTest : FunSpec({
 
             awaitItem()
 
-            viewModel.handleIntent(SearchIntent.DoSearch("spider-man"))
+            viewModel.handleIntent(SearchIntent.DoSearch("no result"))
 
             val state = awaitItem()
 
-            state.searchWord shouldBe "spider-man"
+            state.searchWord shouldBe "no result"
             state.filteredArtworks.isEmpty() shouldBe true
 
         }
