@@ -34,8 +34,8 @@ configure<ApplicationExtension> {
         applicationId = "com.mskd.flux"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 29
-        versionName = "1.6.1"
+        versionCode = 30
+        versionName = "1.6.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
@@ -50,9 +50,15 @@ configure<ApplicationExtension> {
                 keyAlias = keystoreProperties["keyAlias"]?.toString() ?: ""
                 keyPassword = keystoreProperties["keyPassword"]?.toString() ?: ""
                 storeFile =
-                        keystoreProperties["storeFile"]?.toString()?.let { rootProject.file(it) }
+                    keystoreProperties["storeFile"]?.toString()?.let { rootProject.file(it) }
                 storePassword = keystoreProperties["storePassword"]?.toString() ?: ""
             }
+        }
+    }
+
+    sourceSets {
+        getByName("androidTest") {
+            resources.directories.add("$rootDir/shared/schemas")
         }
     }
 
@@ -66,8 +72,8 @@ configure<ApplicationExtension> {
             isShrinkResources = true
 
             proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
             )
         }
 
@@ -90,8 +96,8 @@ configure<ApplicationExtension> {
             isShrinkResources = true
 
             proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
             )
         }
     }
