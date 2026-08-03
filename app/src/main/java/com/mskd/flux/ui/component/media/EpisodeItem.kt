@@ -32,7 +32,7 @@ import com.mskd.flux.ui.component.global.FixedChip
 import com.mskd.flux.ui.component.global.ReadMoreButton
 import com.mskd.flux.ui.component.global.Text
 import com.mskd.flux.ui.theme.FluxUI
-import com.mskd.flux.utils.AppThemePreview
+import com.mskd.flux.utils.FluxThemePreview
 import com.mskd.flux.utils.PortraitPreview
 import com.mskd.flux.utils.extensions.grayScale
 import com.mskd.flux.utils.extensions.minToMs
@@ -145,14 +145,13 @@ fun EpisodeItemLarge(
                     append("${episode.number}. ")
                 append(episode.title)
             }
-            Text.Title.Medium(
+            Text.Card.Title(
                 modifier = Modifier.fillMaxWidth(),
                 text =  title,
                 textAlign = TextAlign.Start,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
-                emphasized = true
             )
 
             if (episode.isUnknown) {
@@ -161,7 +160,7 @@ fun EpisodeItemLarge(
                 MediaDetailsHorizontal(media = episode)
             }
 
-            Text.Body.Medium(
+            Text.Card.Body(
                 modifier = Modifier
                     .fillMaxWidth()
                     .animateContentSize(),
@@ -256,14 +255,13 @@ fun EpisodeItemSmall(
                         append("${episode.number}. ")
                     append(episode.title)
                 }
-                Text.Title.Medium(
+                Text.Card.Title(
                     modifier = Modifier.fillMaxWidth(),
                     text =  title,
                     textAlign = TextAlign.Start,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
-                    emphasized = true
                 )
 
                 MediaDetailsVertical(media = episode)
@@ -272,7 +270,7 @@ fun EpisodeItemSmall(
 
         }
 
-        Text.Body.Medium(
+        Text.Card.Body(
             modifier = Modifier
                 .fillMaxWidth()
                 .animateContentSize(),
@@ -307,7 +305,7 @@ fun EpisodeItemSmall(
 @PortraitPreview
 @Composable
 fun EpisodeItem_Preview() {
-    AppThemePreview {
+    FluxThemePreview {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -335,7 +333,7 @@ fun EpisodeItem_Preview() {
 @PortraitPreview
 @Composable
 fun EpisodeItemWatching_Preview() {
-    AppThemePreview {
+    FluxThemePreview {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -369,7 +367,7 @@ fun EpisodeItemWatching_Preview() {
 @PortraitPreview
 @Composable
 fun EpisodeItemWatched_Preview() {
-    AppThemePreview {
+    FluxThemePreview {
         Column(
             modifier = Modifier
                 .fillMaxSize()

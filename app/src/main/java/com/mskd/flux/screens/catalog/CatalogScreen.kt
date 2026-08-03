@@ -5,9 +5,9 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -16,10 +16,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -46,22 +44,28 @@ import com.mskd.flux.features.catalog.presentation.CatalogViewModel
 import com.mskd.flux.mockups.MediaMockups
 import com.mskd.flux.navigation.Route
 import com.mskd.flux.screens.catalog.composable.CatalogCategory
-import com.mskd.flux.screens.catalog.composable.CatalogGenericItems
+import com.mskd.flux.screens.catalog.composable.CatalogGenericCategory
 import com.mskd.flux.screens.catalog.composable.CatalogTopButtons
 import com.mskd.flux.screens.catalog.composable.LastWatchedCarousel
 import com.mskd.flux.ui.component.LoadingScreen
-import com.mskd.flux.ui.component.global.FluxSnackbar
 import com.mskd.flux.ui.component.global.Text
 import com.mskd.flux.ui.theme.FluxUI
-import com.mskd.flux.utils.AppThemePreview
 import com.mskd.flux.utils.FluxPreview
+import com.mskd.flux.utils.FluxThemePreview
 import flux.shared.generated.resources.Res
+import flux.shared.generated.resources.add_source
 import flux.shared.generated.resources.empty_catalog
 import flux.shared.generated.resources.empty_catalog_desc
 import flux.shared.generated.resources.how_to_name_files
+import flux.shared.generated.resources.ic_add_folder
+import flux.shared.generated.resources.ic_api
+import flux.shared.generated.resources.ic_flux
 import flux.shared.generated.resources.movies
+import flux.shared.generated.resources.other_files
 import flux.shared.generated.resources.shows
 import flux.shared.generated.resources.sync_in_progress
+import flux.shared.generated.resources.tmdb_api_token
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -73,7 +77,6 @@ fun CatalogScreen(
 ) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
@@ -90,15 +93,6 @@ fun CatalogScreen(
             }
         }
     }
-
-    FluxSnackbar(
-        snackbarState = uiState.snackbarState,
-        snackbarHostState = snackbarHostState,
-        duration = SnackbarDuration.Indefinite,
-        withDismissAction = true,
-        onDismiss = { viewModel.handleIntent(CatalogIntent.OnDismissSnackbar) },
-        onAction = { viewModel.handleIntent(CatalogIntent.OnSnackbarActionTap) }
-    )
 
     AnimatedContent(
         modifier = Modifier.fillMaxSize(),
@@ -129,7 +123,7 @@ fun CatalogScreen(
                     artworks = state.artworks,
                     lastWatchedIds = state.lastWatchedMediaIds,
                     isRefreshing = state.isRefreshing,
-                    snackbarHostState = snackbarHostState,
+                    tokenIsMissing = state.tokenIsMissing,
                     sendIntent = viewModel::handleIntent
                 )
 
@@ -148,7 +142,7 @@ fun CatalogContent(
     artworks: List<Artwork>,
     lastWatchedIds: List<Long>,
     isRefreshing: Boolean,
-    snackbarHostState: SnackbarHostState,
+    tokenIsMissing: Boolean,
     sendIntent: (CatalogIntent) -> Unit
 ) {
 
@@ -161,9 +155,6 @@ fun CatalogContent(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState,)
-        }
     ) { paddingValues ->
 
         Column(modifier = Modifier.fillMaxSize()) {
@@ -199,7 +190,7 @@ fun CatalogContent(
 
                         item {
 
-                            Text.Headline.Medium(
+                            Text.Content.Title(
                                 modifier = Modifier
                                     .padding(top = FluxUI.Space.medium)
                                     .padding(horizontal = FluxUI.Space.medium),
@@ -210,7 +201,7 @@ fun CatalogContent(
 
                         item {
 
-                            Text.Body.Large(
+                            Text.Content.Body(
                                 modifier = Modifier.padding(horizontal = FluxUI.Space.medium),
                                 text = stringResource(Res.string.empty_catalog_desc)
                             )
@@ -219,13 +210,12 @@ fun CatalogContent(
 
                         item {
 
-                            Text.Label.Large(
-                                modifier = Modifier
-                                    .padding(all = FluxUI.Space.medium)
-                                    .clickable { sendIntent(CatalogIntent.OnHowToTap) },
-                                text = stringResource(Res.string.how_to_name_files),
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                            TextButton(
+                                onClick = { sendIntent(CatalogIntent.OnHowToTap) },
+                                contentPadding = PaddingValues(all = FluxUI.Space.medium)
+                            ) {
+                                Text.Button(text = stringResource(Res.string.how_to_name_files),)
+                            }
 
                         }
 
@@ -260,11 +250,40 @@ fun CatalogContent(
 
                     }
 
-                    item {
-                        CatalogGenericItems(
-                            showUnknown = artworks.any { it.isUnknown },
-                            sendIntent = sendIntent
-                        )
+                    if (artworks.any { it.isUnknown }) {
+                        item {
+                            CatalogGenericCategory(
+                                name = stringResource(Res.string.other_files),
+                                painter = painterResource(Res.drawable.ic_flux),
+                                iconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                backgroundColor = MaterialTheme.colorScheme.secondaryContainer,
+                                onTap = { sendIntent(CatalogIntent.OnArtworkTap(artwork = Artwork.UNKNOWN)) }
+                            )
+                        }
+                    }
+
+                    if (artworks.isEmpty()) {
+                        item {
+                            CatalogGenericCategory(
+                                name = stringResource(Res.string.add_source),
+                                painter = painterResource(Res.drawable.ic_add_folder),
+                                iconColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                                backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                onTap = { sendIntent(CatalogIntent.OnSourcesTap) }
+                            )
+                        }
+                    }
+
+                    if (tokenIsMissing) {
+                        item {
+                            CatalogGenericCategory(
+                                name = stringResource(Res.string.tmdb_api_token),
+                                painter = painterResource(Res.drawable.ic_api),
+                                iconColor = MaterialTheme.colorScheme.onSurface,
+                                backgroundColor = MaterialTheme.colorScheme.surfaceBright,
+                                onTap = { sendIntent(CatalogIntent.OnTokenTap) }
+                            )
+                        }
                     }
 
                     item {
@@ -290,13 +309,29 @@ fun CatalogContent(
 @FluxPreview
 @Composable
 fun CatalogScreen_Preview() {
-    AppThemePreview {
+    FluxThemePreview {
         Surface {
             CatalogContent(
                 artworks = MediaMockups.artworks,
                 lastWatchedIds = MediaMockups.artworks.map { it.id },
                 isRefreshing = false,
-                snackbarHostState = SnackbarHostState(),
+                tokenIsMissing = false,
+                sendIntent = {}
+            )
+        }
+    }
+}
+
+@FluxPreview
+@Composable
+fun CatalogScreen_Unknown_Preview() {
+    FluxThemePreview {
+        Surface {
+            CatalogContent(
+                artworks = listOf(MediaMockups.unknownArtwork),
+                lastWatchedIds = emptyList(),
+                isRefreshing = false,
+                tokenIsMissing = true,
                 sendIntent = {}
             )
         }
@@ -306,13 +341,13 @@ fun CatalogScreen_Preview() {
 @FluxPreview
 @Composable
 fun CatalogScreen_Empty_Preview() {
-    AppThemePreview {
+    FluxThemePreview {
         Surface {
             CatalogContent(
-                artworks = listOf(MediaMockups.unknownArtwork),
+                artworks = emptyList(),
                 lastWatchedIds = emptyList(),
                 isRefreshing = false,
-                snackbarHostState = SnackbarHostState(),
+                tokenIsMissing = true,
                 sendIntent = {}
             )
         }
