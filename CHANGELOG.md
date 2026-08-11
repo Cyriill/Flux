@@ -1,6 +1,4 @@
-## Version 1.6.2
+## Version 1.7.0
 
-- Feature: Optional system folders
-- UI: New Set up screen
-- UI: More consistency for texts
-- Fix: DDB Migration from 1.6.1
+- UI: New home UI
+- Feature: Add genres

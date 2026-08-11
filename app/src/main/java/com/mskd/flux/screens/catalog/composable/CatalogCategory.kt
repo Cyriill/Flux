@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import com.mskd.flux.core.model.artwork.Artwork
-import com.mskd.flux.core.model.artwork.ContentType
+import com.mskd.flux.features.catalog.domain.model.CatalogSortingMode
 import com.mskd.flux.features.catalog.presentation.CatalogIntent
 import com.mskd.flux.ui.component.global.Text
 import com.mskd.flux.ui.component.media.MediaItem
@@ -33,18 +35,24 @@ import com.mskd.flux.utils.rememberScreenDimensions
 @Composable
 fun CatalogCategory(
     name: String? = null,
-    category: ContentType,
     artworks: List<Artwork>,
-    sendIntent: (CatalogIntent) -> Unit
+    sortingOption: CatalogSortingMode,
+    onCategoryTap: () -> Unit,
+    sendIntent: (CatalogIntent) -> Unit,
 ) {
 
     if (artworks.isEmpty())
         return
 
+    val listState = rememberLazyListState()
     val screenDimensions = rememberScreenDimensions()
     val columns = if (screenDimensions.isLarge) 5 else FluxUI.itemsPerRow.artworks
     var itemWidth by remember { mutableStateOf(FluxUI.Dimension.itemWidth) }
     val density = LocalDensity.current
+
+    LaunchedEffect(sortingOption) {
+        listState.scrollToItem(0)
+    }
 
     Column(
         modifier = Modifier
@@ -62,15 +70,16 @@ fun CatalogCategory(
 
         Text.Content.Title(
             modifier = Modifier
-                .clickable { sendIntent(CatalogIntent.OnCategoryTap(category)) }
+                .clickable { onCategoryTap() }
                 .fillMaxWidth()
-                .padding(start = FluxUI.Space.medium, top = FluxUI.Space.large),
+                .padding(start = FluxUI.Space.medium),
             text = name,
             color = MaterialTheme.colorScheme.onBackground
         )
 
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
+            state = listState,
             contentPadding = PaddingValues(horizontal = FluxUI.Space.medium),
             horizontalArrangement = Arrangement.spacedBy(FluxUI.Space.small)
         ) {
@@ -79,10 +88,11 @@ fun CatalogCategory(
 
                 MediaItem(
                     modifier = Modifier
+                        .animateItem()
                         .width(itemWidth)
                         .aspectRatio(FluxUI.Dimension.itemRatio),
                     path = it.imagePath,
-                    onTap = { rgb -> sendIntent(CatalogIntent.OnArtworkTap(artwork = it, rgb = rgb)) },
+                    onClick = { rgb -> sendIntent(CatalogIntent.OnArtworkTap(artwork = it, rgb = rgb)) },
                     description = it.title
                 )
 
