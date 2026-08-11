@@ -248,6 +248,7 @@ class CatalogViewModelTest : FunSpec({
 
                 // Then
                 awaitItem() shouldBe CatalogEvent.NavigateToSearch(category = type)
+                cancelAndIgnoreRemainingEvents()
             }
 
         }
@@ -270,6 +271,7 @@ class CatalogViewModelTest : FunSpec({
 
                 // Then
                 awaitItem() shouldBe CatalogEvent.NavigateToSearch(genre = genre)
+                cancelAndIgnoreRemainingEvents()
             }
 
         }
@@ -361,6 +363,7 @@ class CatalogViewModelTest : FunSpec({
 
                 // Then
                 coEvery { catalogDataStore.setSortingMode(mode) }
+                cancelAndIgnoreRemainingEvents()
             }
 
         }
@@ -404,6 +407,7 @@ class CatalogViewModelTest : FunSpec({
 
                 // Then
                 coEvery { catalogDataStore.setViewMode(mode) }
+                cancelAndIgnoreRemainingEvents()
             }
 
         }

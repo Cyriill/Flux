@@ -84,6 +84,7 @@ class SearchViewModelTest : FunSpec({
     test("initial state with a contentType") {
 
         checkAll(
+            iterations = 30,
             Arb.enum<ContentType>()
         ) { type ->
 
@@ -92,6 +93,7 @@ class SearchViewModelTest : FunSpec({
             viewModel.uiState.test {
                 val state = awaitItem()
                 state.actions.selectedType shouldBe type
+                cancelAndIgnoreRemainingEvents()
             }
 
         }
@@ -101,6 +103,7 @@ class SearchViewModelTest : FunSpec({
     test("initial state with a genre") {
 
         checkAll(
+            iterations = 30,
             Arb.element(DetailsMockup.allGenres)
         ) { genre ->
 
@@ -109,6 +112,7 @@ class SearchViewModelTest : FunSpec({
             viewModel.uiState.test {
                 val state = awaitItem()
                 state.actions.selectedGenres shouldContainExactly persistentListOf(genre.id)
+                cancelAndIgnoreRemainingEvents()
             }
 
         }
@@ -139,6 +143,7 @@ class SearchViewModelTest : FunSpec({
                 val state = awaitItem()
                 state.actions.input shouldBe input
                 state.artworks.shouldForAll { it.title shouldContainIgnoringCase input  }
+                cancelAndIgnoreRemainingEvents()
 
             }
 
@@ -170,6 +175,7 @@ class SearchViewModelTest : FunSpec({
                 val state = awaitItem()
                 state.actions.selectedType shouldBe type
                 state.artworks.shouldForAll { it.type shouldBe type }
+                cancelAndIgnoreRemainingEvents()
             }
 
         }
@@ -195,6 +201,7 @@ class SearchViewModelTest : FunSpec({
 
                 // Then
                 awaitItem().actions.selectedType shouldBe null
+                cancelAndIgnoreRemainingEvents()
 
             }
 
@@ -229,6 +236,7 @@ class SearchViewModelTest : FunSpec({
         val availableGenres = DetailsMockup.allGenres.filterFor(artworks)
 
         checkAll(
+            iterations = 30,
             Arb.element(availableGenres)
         ){ genre ->
 
@@ -243,6 +251,7 @@ class SearchViewModelTest : FunSpec({
                 val state = awaitItem()
                 state.actions.selectedGenres shouldContain genre.id
                 state.artworks shouldForAll { it.genreIds shouldContain genre.id }
+                cancelAndIgnoreRemainingEvents()
 
             }
 
@@ -257,6 +266,7 @@ class SearchViewModelTest : FunSpec({
         val availableGenres = DetailsMockup.allGenres.filterFor(artworks)
 
         checkAll(
+            iterations = 50,
             Arb.subsequence(availableGenres).filter { it.isNotEmpty() }
         ){ genres ->
 
@@ -271,6 +281,7 @@ class SearchViewModelTest : FunSpec({
                 val state = expectMostRecentItem()
                 state.actions.selectedGenres shouldContainExactlyInAnyOrder genres.map { it.id }
                 state.artworks shouldForAll { a -> a.genreIds shouldContainAnyOf genres.map { it.id } }
+                cancelAndIgnoreRemainingEvents()
 
             }
 
@@ -285,6 +296,7 @@ class SearchViewModelTest : FunSpec({
         val availableGenres = DetailsMockup.allGenres.filter { genre -> artworks.any { it.genreIds.contains(genre.id) } }
 
         checkAll(
+            iterations = 50,
             Arb.subsequence(availableGenres).filter { it.isNotEmpty() }
         ){ genres ->
 
@@ -300,6 +312,7 @@ class SearchViewModelTest : FunSpec({
                 val state = expectMostRecentItem()
                 state.actions.selectedGenres shouldBe persistentListOf()
                 state.artworks shouldContainExactlyInAnyOrder artworks
+                cancelAndIgnoreRemainingEvents()
 
             }
 
@@ -330,6 +343,7 @@ class SearchViewModelTest : FunSpec({
     test("OnArtworkTap - Tap on a show, send NavigateToShow event") {
 
         checkAll(
+            iterations = 30,
             Arb.element(MediaMockups.artworks.filter { it.type == ContentType.SHOW }),
             Arb.int().orNull()
         ) { show, color ->
@@ -344,6 +358,7 @@ class SearchViewModelTest : FunSpec({
 
                 // Then
                 awaitItem() shouldBe SearchEvent.NavigateToShow(artworkId = show.id, rgb = color)
+                cancelAndIgnoreRemainingEvents()
             }
 
         }
@@ -353,6 +368,7 @@ class SearchViewModelTest : FunSpec({
     test("OnArtworkTap - Tap on a movie, send NavigateToMovie event") {
 
         checkAll(
+            iterations = 30,
             Arb.element(MediaMockups.artworks.filter { it.type == ContentType.MOVIE }),
             Arb.int().orNull()
         ) { movie, color ->
@@ -367,6 +383,7 @@ class SearchViewModelTest : FunSpec({
 
                 // Then
                 awaitItem() shouldBe SearchEvent.NavigateToMovie(artworkId = movie.id, rgb = color)
+                cancelAndIgnoreRemainingEvents()
             }
 
         }

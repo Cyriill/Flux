@@ -43,7 +43,6 @@ class GetSubtitlesUseCaseTest: FunSpec ({
 
             val result = useCase(file)
 
-
             result shouldBe FilesMockups.subtitles.find { it.equals(file.name, ignoreCase = true) }
 
         }
