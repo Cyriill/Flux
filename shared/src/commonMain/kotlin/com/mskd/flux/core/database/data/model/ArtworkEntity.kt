@@ -14,5 +14,8 @@ data class ArtworkEntity(
     val description: String = "",
     val imagePath: String = "",
     val bannerPath: String = "",
-    val type: ContentType = ContentType.SHOW
+    val type: ContentType = ContentType.SHOW,
+    val lastModification: Long? = null,
+    @ColumnInfo(defaultValue = "")
+    val genreIds: List<Int> = emptyList()
 )
