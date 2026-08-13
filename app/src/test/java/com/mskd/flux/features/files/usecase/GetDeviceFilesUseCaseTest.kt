@@ -25,6 +25,7 @@ class GetDeviceFilesUseCaseTest: FunSpec ({
     test("get files from multiple sources") {
 
         checkAll(
+            iterations = 50,
             Arb.subsequence(FilesMockups.mediaStoreFiles),
             Arb.subsequence(FilesMockups.safFiles)
         ) { mediaStoreFiles, safFiles ->

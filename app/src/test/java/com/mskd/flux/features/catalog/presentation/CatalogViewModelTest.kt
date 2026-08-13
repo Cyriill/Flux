@@ -21,9 +21,10 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.property.Arb
+import io.kotest.property.Exhaustive
 import io.kotest.property.arbitrary.element
-import io.kotest.property.arbitrary.enum
 import io.kotest.property.checkAll
+import io.kotest.property.exhaustive.enum
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -235,7 +236,7 @@ class CatalogViewModelTest : FunSpec({
     test("OnCategoryTap - should send NavigateToSearch event with a given type") {
 
         checkAll(
-            Arb.enum<ContentType>()
+            Exhaustive.enum<ContentType>()
         ) { type ->
 
             // Given
@@ -258,6 +259,7 @@ class CatalogViewModelTest : FunSpec({
     test("OnGenreTap - should send NavigateToSearch event with a given genre") {
 
         checkAll(
+            iterations = 30,
             Arb.element(DetailsMockup.allGenres)
         ) { genre ->
 
@@ -348,7 +350,7 @@ class CatalogViewModelTest : FunSpec({
     test("SelectSortingMode - select and save the selected sorting option") {
 
         checkAll(
-            Arb.enum<CatalogSortingMode>()
+            Exhaustive.enum<CatalogSortingMode>()
         ) { mode ->
 
             // Given
@@ -392,7 +394,7 @@ class CatalogViewModelTest : FunSpec({
     test("SelectViewMode - select and save the selected view option") {
 
         checkAll(
-            Arb.enum<CatalogViewMode>()
+            Exhaustive.enum<CatalogViewMode>()
         ) { mode ->
 
             // Given

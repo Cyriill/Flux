@@ -12,12 +12,14 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.property.Arb
+import io.kotest.property.Exhaustive
 import io.kotest.property.arbitrary.boolean
-import io.kotest.property.arbitrary.element
-import io.kotest.property.arbitrary.enum
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.orNull
 import io.kotest.property.checkAll
+import io.kotest.property.exhaustive.boolean
+import io.kotest.property.exhaustive.enum
+import io.kotest.property.exhaustive.of
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -74,7 +76,7 @@ class CustomizationViewModelTest : FunSpec({
 
         checkAll(
             iterations = 100,
-            Arb.enum<UiCommon.THEME>(),
+            Exhaustive.enum<UiCommon.THEME>(),
             Arb.int().orNull(),
             Arb.boolean(),
             Arb.boolean(),
@@ -82,7 +84,7 @@ class CustomizationViewModelTest : FunSpec({
             Arb.int(),
             Arb.int(),
             Arb.int(),
-            Arb.enum<NavigationStyle>()
+            Exhaustive.enum<NavigationStyle>()
         ) {
             theme,
             color,
@@ -220,7 +222,7 @@ class CustomizationViewModelTest : FunSpec({
     test("SetThemeValue - should call datastore setUiTheme") {
 
         checkAll(
-            Arb.enum<UiCommon.THEME>()
+            Exhaustive.enum<UiCommon.THEME>()
         ) { theme ->
 
             // Given
@@ -265,7 +267,7 @@ class CustomizationViewModelTest : FunSpec({
     test("OnWaveProgressCheck - should call datastore setWaveProgress") {
 
         checkAll(
-            Arb.boolean()
+            Exhaustive.boolean()
         ) { check ->
 
             // Given
@@ -288,7 +290,7 @@ class CustomizationViewModelTest : FunSpec({
     test("OnOldBlurredHeaderCheck - should call datastore setOldBlurredHeader") {
 
         checkAll(
-            Arb.boolean()
+            Exhaustive.boolean()
         ) { check ->
 
             // Given
@@ -311,7 +313,7 @@ class CustomizationViewModelTest : FunSpec({
     test("OnLargeEpisodeImageCheck - should call datastore setLargeEpisodeImage") {
 
         checkAll(
-            Arb.boolean()
+            Exhaustive.boolean()
         ) { check ->
 
             // Given
@@ -334,6 +336,7 @@ class CustomizationViewModelTest : FunSpec({
     test("SetItemsPerRowValue - should call datastore setItemsPerRow") {
 
         checkAll(
+            iterations = 5,
             Arb.int(min = 2, max = 5)
         ) { count ->
 
@@ -357,6 +360,7 @@ class CustomizationViewModelTest : FunSpec({
     test("SetSeasonsPerRowValue - should call datastore setSeasonsPerRow") {
 
         checkAll(
+            iterations = 5,
             Arb.int(min = 2, max = 5)
         ) { count ->
 
@@ -380,7 +384,7 @@ class CustomizationViewModelTest : FunSpec({
     test("SetItemsCornersValue - should call datastore setItemsCorners") {
 
         checkAll(
-            Arb.element(listOf(8, 12, 16))
+            Exhaustive.of(8, 12, 16)
         ) { count ->
 
             // Given
@@ -403,7 +407,7 @@ class CustomizationViewModelTest : FunSpec({
     test("SetNavigationStyle - should call datastore setNavigationStyle") {
 
         checkAll(
-            Arb.enum<NavigationStyle>()
+            Exhaustive.enum<NavigationStyle>()
         ) { style ->
 
             // Given

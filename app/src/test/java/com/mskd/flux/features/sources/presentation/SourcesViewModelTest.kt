@@ -13,9 +13,9 @@ import com.mskd.flux.features.sources.domain.usecase.FlowSourcesUseCase
 import com.mskd.flux.features.token.domain.datastore.TokenDataStore
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.property.Arb
-import io.kotest.property.arbitrary.boolean
+import io.kotest.property.Exhaustive
 import io.kotest.property.checkAll
+import io.kotest.property.exhaustive.boolean
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -81,7 +81,7 @@ class SourcesViewModelTest : FunSpec({
     }
 
     test("uiState returns fromSetup in content") {
-        checkAll(Arb.boolean()) { fromSetup ->
+        checkAll(Exhaustive.boolean()) { fromSetup ->
             val viewModel = createViewModel(fromSetup = fromSetup)
 
             viewModel.uiState.test {
