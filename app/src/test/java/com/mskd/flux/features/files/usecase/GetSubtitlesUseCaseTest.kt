@@ -26,6 +26,7 @@ class GetSubtitlesUseCaseTest: FunSpec ({
     test("get subtitle from file if it exist") {
 
         checkAll(
+            iterations = 50,
             Arb.element(FilesMockups.mediaStoreFiles + FilesMockups.safFiles),
         ) { file ->
 

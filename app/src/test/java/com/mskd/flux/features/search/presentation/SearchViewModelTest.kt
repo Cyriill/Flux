@@ -19,13 +19,15 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContainIgnoringCase
 import io.kotest.property.Arb
+import io.kotest.property.Exhaustive
 import io.kotest.property.arbitrary.element
-import io.kotest.property.arbitrary.enum
 import io.kotest.property.arbitrary.filter
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.orNull
 import io.kotest.property.arbitrary.subsequence
 import io.kotest.property.checkAll
+import io.kotest.property.exhaustive.enum
+import io.kotest.property.exhaustive.of
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.collections.immutable.persistentListOf
@@ -84,8 +86,7 @@ class SearchViewModelTest : FunSpec({
     test("initial state with a contentType") {
 
         checkAll(
-            iterations = 30,
-            Arb.enum<ContentType>()
+            Exhaustive.enum<ContentType>()
         ) { type ->
 
             val viewModel = createViewModel(withType = type)
@@ -126,7 +127,7 @@ class SearchViewModelTest : FunSpec({
     test("DoSearch - user enters input") {
 
         checkAll(
-            Arb.element(listOf("na", "nar", "no result"))
+            Exhaustive.of("na", "nar", "no result")
         ) { input ->
 
             // Given
@@ -158,7 +159,7 @@ class SearchViewModelTest : FunSpec({
     test("FilterOnType - filter on type") {
 
         checkAll(
-            Arb.enum<ContentType>()
+            Exhaustive.enum<ContentType>()
         ) { type ->
 
             // Given
@@ -185,7 +186,7 @@ class SearchViewModelTest : FunSpec({
     test("FilterOnType - remove type filter when same type is selected") {
 
         checkAll(
-            Arb.enum<ContentType>()
+            Exhaustive.enum<ContentType>()
         ) { type ->
 
             // Given

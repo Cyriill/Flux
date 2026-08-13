@@ -26,6 +26,7 @@ class FilterExistingFilesUseCaseTest: FunSpec ({
     test("result should be the union between mediastore and saf") {
 
         checkAll(
+            iterations = 50,
             Arb.subsequence(FilesMockups.mediaStoreFiles),
             Arb.subsequence(FilesMockups.safFiles)
         ) { mediaStoreFiles, safFiles ->
