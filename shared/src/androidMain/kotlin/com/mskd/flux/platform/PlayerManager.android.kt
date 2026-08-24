@@ -432,8 +432,10 @@ class AndroidPlayerManager(private val context: Context) : Player.Listener, Play
                     if (player.isPlaying && player.duration > 0) {
 
                         val progressPercentage = player.currentPosition.toFloat() / player.duration.toFloat()
-                        val showNextEpisode = progressPercentage >= Constants.PLAYER.PROGRESS_THRESHOLD
-
+                        val showNextEpisode = 
+                        player.currentPosition >=
+                        player.duration - Constants.PLAYER.NEXT_EPISODE_REMAINING_MS
+                        
                         _progress.update {
                             it.copy(
                                 progress = player.currentPosition,
