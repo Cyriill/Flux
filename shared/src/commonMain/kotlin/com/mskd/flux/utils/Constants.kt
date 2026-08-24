@@ -38,6 +38,7 @@ object Constants {
 
     object PLAYER {
         const val PROGRESS_THRESHOLD = 0.92
+        const val NEXT_EPISODE_REMAINING_MS = 45_000L
     }
 
 }
